@@ -78,8 +78,8 @@ def save_seen(urls: set[str]) -> None:
 
 
 def send_email(subject: str, body: str) -> None:
-    host = os.environ["SMTP_HOST"]
-    port = int(os.environ.get("SMTP_PORT", "587"))
+    host = os.environ.get("SMTP_HOST") or "smtp.gmail.com"
+    port = int(os.environ.get("SMTP_PORT") or "587")
     user = os.environ["SMTP_USER"]
     password = os.environ["SMTP_PASS"]
     to_addr = os.environ["TO_EMAIL"]

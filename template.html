@@ -59,7 +59,7 @@
     </div>
 
     <script>
-        function applyFilters() {
+        function applyFilters() {{  // <--- DOUBLE
             const selectedYear = document.getElementById('yearFilter').value;
             const selectedMonth = document.getElementById('monthFilter').value;
             const items = document.querySelectorAll('.post-item');
@@ -67,28 +67,27 @@
             
             let visibleCount = 0;
 
-            items.forEach(item => {
+            items.forEach(item => {{  // <--- DOUBLE
                 const itemYear = item.getAttribute('data-year');
                 const itemMonth = item.getAttribute('data-month');
 
                 const matchesYear = (selectedYear === 'all' || itemYear === selectedYear);
                 const matchesMonth = (selectedMonth === 'all' || itemMonth === selectedMonth);
 
-                if (matchesYear && matchesMonth) {
+                if (matchesYear && matchesMonth) {{  // <--- DOUBLE
                     item.style.display = 'block';
                     visibleCount++;
-                } else {
+                }} else {{  // <--- DOUBLE
                     item.style.display = 'none';
-                }
-            });
+                }}
+            }});  // <--- DOUBLE
 
-            // Update the status tag
-            if (selectedYear === 'all' && selectedMonth === 'all') {
+            if (selectedYear === 'all' && selectedMonth === 'all') {{  // <--- DOUBLE
                 countDisplay.innerText = "SHOWING: ALL";
-            } else {
+            }} else {{  // <--- DOUBLE
                 countDisplay.innerText = `MATCHES_FOUND: ${visibleCount}`;
-            }
-        }
+            }}
+        }}  // <--- DOUBLE
     </script>
 </body>
 </html>

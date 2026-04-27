@@ -10,6 +10,14 @@ Built and maintained by [Telosignal](https://www.telosignal.com/).
 
 ---
 
+<p  align="center">
+   <kbd>
+      <img width="800" src="https://github.com/user-attachments/assets/36fb829b-0ced-4b36-923e-5a1ee37db3b6" alt="Screenshot of the Intelligence Feed dashboard showing news cards from April 2026" style="border: 1px solid #333">
+   </kbd>
+</p>
+
+---
+
 ## ✨ Features
 
 * **📰 Targeted Scraping:** Specifically monitors `anthropic.com/news` for high-signal updates.

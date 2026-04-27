@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import re 
 import smtplib
 import sys
 from email.message import EmailMessage
@@ -15,7 +16,6 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 
 NEWS_URL = "https://www.anthropic.com/news"
-# We now store a dictionary of metadata instead of just a list of URLs
 SEEN_FILE = Path(__file__).parent / "seen_data.json"
 USER_AGENT = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
@@ -50,31 +50,46 @@ def discover_articles(html: str) -> list[str]:
 
 
 def extract_article(html: str) -> tuple[str, str, str]:
-    """Extracts title, full text, and published date."""
+    """Extracts title, FULL text, and published date using Regex fix."""
     soup = BeautifulSoup(html, "html.parser")
 
     # 1. Extract Title
     title_el = soup.find("h1") or soup.find("title")
     title = title_el.get_text(strip=True) if title_el else "Anthropic News"
 
-    # 2. Extract Date (Anthropic usually uses <time> tags)
-    date_el = soup.find("time")
-    date_str = date_el.get_text(strip=True) if date_el else datetime.now().strftime("%B %d, %Y")
+    # 2. Extract Date (REGEX FIX from your successful local test)
+    date_str = "Recent"
+    date_pattern = re.compile(
+        r'(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2},\s+20\d{2}', 
+        re.IGNORECASE
+    )
+    
+    # Scan all small text blocks for the date pattern
+    for element in soup.find_all(['div', 'p', 'span']):
+        text_val = element.get_text(strip=True)
+        if 10 < len(text_val) < 50:
+            match = date_pattern.search(text_val)
+            if match:
+                date_str = match.group(0)
+                break
 
-    # 3. Extract Body Content
+    # 3. Extract Body Content (Full text preserved for email)
     body_el = soup.find("article") or soup.find("main") or soup.body
     if body_el is None:
         text = soup.get_text("\n", strip=True)
     else:
-        for tag in body_el.find_all(["script", "style", "nav", "footer", "header"]):
+        # Create a copy so we don't mess up the original soup
+        import copy
+        content = copy.copy(body_el)
+        # Remove fluff for the content extraction
+        for tag in content.find_all(["script", "style", "nav", "footer", "header"]):
             tag.decompose()
-        text = body_el.get_text("\n", strip=True)
+        text = content.get_text("\n", strip=True)
 
     return title, text, date_str
 
 
 def load_seen_data() -> dict:
-    """Loads the dictionary of seen articles and their metadata."""
     if not SEEN_FILE.exists():
         return {}
     try:
@@ -107,7 +122,6 @@ def send_email(subject: str, body: str) -> None:
 
 
 def update_index_html(articles_data: dict):
-    """Generates index.html using metadata for title, date, and snippets."""
     try:
         with open("template.html", "r") as f:
             html_template = f.read()
@@ -116,9 +130,9 @@ def update_index_html(articles_data: dict):
         return
 
     items = ""
-    # Sort by date or original discovery (reversed for newest first)
+    # newest first
     for url, info in reversed(list(articles_data.items())):
-        # Generate a 40-word snippet for the web view
+        # Snippet for web view only
         snippet_text = info['text'].replace('\n', ' ')
         snippet = " ".join(snippet_text.split()[:40]) + "..."
         
@@ -136,7 +150,6 @@ def update_index_html(articles_data: dict):
     
     with open("index.html", "w") as f:
         f.write(final_html)
-    print("Successfully updated index.html with dates and snippets.")
 
 
 def main() -> int:
@@ -146,9 +159,8 @@ def main() -> int:
     
     seen_data = load_seen_data()
 
-    # Initial seeding if file doesn't exist
     if not seen_data:
-        print("First run: seeding metadata for current articles...")
+        print("First run: seeding metadata...")
         for url in current_urls:
             html = fetch(url)
             title, text, date_str = extract_article(html)
@@ -168,11 +180,8 @@ def main() -> int:
             email_body = f"Source: {url}\nPublished: {date_str}\n\n{text}"
             send_email(f"[Anthropic News] {title}", email_body)
             
-            # Store metadata for index.html
             seen_data[url] = {"title": title, "text": text, "date": date_str}
             new_count += 1
-            
-            # Save incrementally in case of crash
             save_seen_data(seen_data)
 
     print(f"Found {new_count} new article(s).")

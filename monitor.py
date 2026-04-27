@@ -126,18 +126,33 @@ def update_index_html(articles_data: dict):
         with open("template.html", "r") as f:
             html_template = f.read()
     except FileNotFoundError:
-        print("Error: template.html not found!")
         return
 
+    # Helper to convert "Apr 16, 2026" into a sortable object
+    def get_date(item):
+        try:
+            return datetime.strptime(item[1]['date'], "%b %d, %Y")
+        except:
+            return datetime.min
+
+    # Sort: Newest articles at the top
+    sorted_items = sorted(articles_data.items(), key=get_date, reverse=True)
+
     items = ""
-    # newest first
-    for url, info in reversed(list(articles_data.items())):
-        # Snippet for web view only
-        snippet_text = info['text'].replace('\n', ' ')
-        snippet = " ".join(snippet_text.split()[:40]) + "..."
+    for url, info in sorted_items:
+        snippet = " ".join(info['text'].replace('\n', ' ').split()[:40]) + "..."
         
+        # We add 'data-year' and 'data-month' for the JS filter
+        try:
+            dt = datetime.strptime(info['date'], "%b %d, %Y")
+            year = dt.strftime("%Y")
+            month = dt.strftime("%m")
+        except:
+            year = "unknown"
+            month = "unknown"
+
         items += f"""
-        <li>
+        <li class="post-item" data-year="{year}" data-month="{month}">
             <span class="post-date">{info['date']}</span>
             <a href="{url}" target="_blank" class="post-title">{info['title']}</a>
             <p class="post-snippet">{snippet}</p>

@@ -15,7 +15,8 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 
 NEWS_URL = "https://www.anthropic.com/news"
-SEEN_FILE = Path(__file__).parent / "seen.json"
+# We now store a dictionary of metadata instead of just a list of URLs
+SEEN_FILE = Path(__file__).parent / "seen_data.json"
 USER_AGENT = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
@@ -48,12 +49,19 @@ def discover_articles(html: str) -> list[str]:
     return urls
 
 
-def extract_article(html: str) -> tuple[str, str]:
+def extract_article(html: str) -> tuple[str, str, str]:
+    """Extracts title, full text, and published date."""
     soup = BeautifulSoup(html, "html.parser")
 
+    # 1. Extract Title
     title_el = soup.find("h1") or soup.find("title")
     title = title_el.get_text(strip=True) if title_el else "Anthropic News"
 
+    # 2. Extract Date (Anthropic usually uses <time> tags)
+    date_el = soup.find("time")
+    date_str = date_el.get_text(strip=True) if date_el else datetime.now().strftime("%B %d, %Y")
+
+    # 3. Extract Body Content
     body_el = soup.find("article") or soup.find("main") or soup.body
     if body_el is None:
         text = soup.get_text("\n", strip=True)
@@ -62,20 +70,21 @@ def extract_article(html: str) -> tuple[str, str]:
             tag.decompose()
         text = body_el.get_text("\n", strip=True)
 
-    return title, text
+    return title, text, date_str
 
 
-def load_seen() -> set[str] | None:
+def load_seen_data() -> dict:
+    """Loads the dictionary of seen articles and their metadata."""
     if not SEEN_FILE.exists():
-        return None
-    raw = SEEN_FILE.read_text().strip()
-    if not raw:
-        return None
-    return set(json.loads(raw))
+        return {}
+    try:
+        return json.loads(SEEN_FILE.read_text())
+    except:
+        return {}
 
 
-def save_seen(urls: set[str]) -> None:
-    SEEN_FILE.write_text(json.dumps(sorted(urls), indent=2) + "\n")
+def save_seen_data(data: dict) -> None:
+    SEEN_FILE.write_text(json.dumps(data, indent=2) + "\n")
 
 
 def send_email(subject: str, body: str) -> None:
@@ -97,10 +106,8 @@ def send_email(subject: str, body: str) -> None:
         smtp.send_message(msg)
 
 
-def update_index_html(all_articles: list):
-    """Reads template.html and generates the final index.html."""
-    
-    # 1. Read the template file
+def update_index_html(articles_data: dict):
+    """Generates index.html using metadata for title, date, and snippets."""
     try:
         with open("template.html", "r") as f:
             html_template = f.read()
@@ -108,53 +115,68 @@ def update_index_html(all_articles: list):
         print("Error: template.html not found!")
         return
 
-    # 2. Generate the <li> list items
     items = ""
-    for url in reversed(all_articles):
-        title = url.split('/')[-1].replace('-', ' ').title()
-        items += f"<li><a href='{url}' target='_blank'>{title}</a></li>\n"
+    # Sort by date or original discovery (reversed for newest first)
+    for url, info in reversed(list(articles_data.items())):
+        # Generate a 40-word snippet for the web view
+        snippet_text = info['text'].replace('\n', ' ')
+        snippet = " ".join(snippet_text.split()[:40]) + "..."
+        
+        items += f"""
+        <li>
+            <span class="post-date">{info['date']}</span>
+            <a href="{url}" target="_blank" class="post-title">{info['title']}</a>
+            <p class="post-snippet">{snippet}</p>
+        </li>\n"""
     
-    # 3. Format the template with data
     final_html = html_template.format(
         articles=items, 
         last_updated=datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC")
     )
     
-    # 4. Save the finished product
     with open("index.html", "w") as f:
         f.write(final_html)
-        
-    print("Successfully updated index.html for GitHub Pages.")
+    print("Successfully updated index.html with dates and snippets.")
+
 
 def main() -> int:
     print(f"Fetching {NEWS_URL}")
     listing = fetch(NEWS_URL)
-    current = discover_articles(listing)
-    print(f"Found {len(current)} article link(s) on listing page")
+    current_urls = discover_articles(listing)
+    
+    seen_data = load_seen_data()
 
-    seen = load_seen()
-    if seen is None:
-        print("First run: seeding seen.json without sending emails")
-        save_seen(set(current))
+    # Initial seeding if file doesn't exist
+    if not seen_data:
+        print("First run: seeding metadata for current articles...")
+        for url in current_urls:
+            html = fetch(url)
+            title, text, date_str = extract_article(html)
+            seen_data[url] = {"title": title, "text": text, "date": date_str}
+        save_seen_data(seen_data)
+        update_index_html(seen_data)
         return 0
 
-    new_urls = [u for u in current if u not in seen]
-    print(f"{len(new_urls)} new article(s)")
+    new_count = 0
+    for url in current_urls:
+        if url not in seen_data:
+            print(f"Processing new article: {url}")
+            html = fetch(url)
+            title, text, date_str = extract_article(html)
+            
+            # Send email with FULL text
+            email_body = f"Source: {url}\nPublished: {date_str}\n\n{text}"
+            send_email(f"[Anthropic News] {title}", email_body)
+            
+            # Store metadata for index.html
+            seen_data[url] = {"title": title, "text": text, "date": date_str}
+            new_count += 1
+            
+            # Save incrementally in case of crash
+            save_seen_data(seen_data)
 
-    for url in new_urls:
-        print(f"Processing {url}")
-        html = fetch(url)
-        title, text = extract_article(html)
-        body = f"{url}\n\n{text}\n"
-        send_email(f"[Anthropic News] {title}", body)
-        seen.add(url)
-        save_seen(seen)
-        print(f"  emailed: {title}")
-
-    seen_articles = load_seen()
-    if seen_articles:
-        update_index_html(list(seen_articles))
-
+    print(f"Found {new_count} new article(s).")
+    update_index_html(seen_data)
     return 0
 
 

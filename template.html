@@ -1,32 +1,94 @@
-<div class="container">
-    <h1>Anthropic News Feed</h1>
-    <p class="update-time">Last updated: {last_updated}</p>
-    
-    <div class="filter-controls">
-        <button class="filter-btn active" onclick="filterBy('all', this)">All</button>
-        <button class="filter-btn" onclick="filterBy('2026', this)">2026</button>
-        <button class="filter-btn" onclick="filterBy('2025', this)">2025</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anthropic News Monitor</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="brand">SYSTEM_MONITOR // ANTHROPIC_NEWS</div>
+            <h1>Intelligence Feed</h1>
+            <p class="update-time">LATEST_SYNC: {last_updated}</p>
+        </header>
+
+        <section class="filter-section">
+            <div class="filter-group">
+                <label for="yearFilter">YEAR_STAMP</label>
+                <select id="yearFilter" onchange="applyFilters()">
+                    <option value="all">ALL_YEARS</option>
+                    <option value="2026">2026</option>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="monthFilter">MONTH_CYCLE</label>
+                <select id="monthFilter" onchange="applyFilters()">
+                    <option value="all">ALL_MONTHS</option>
+                    <option value="01">JANUARY</option>
+                    <option value="02">FEBRUARY</option>
+                    <option value="03">MARCH</option>
+                    <option value="04">APRIL</option>
+                    <option value="05">MAY</option>
+                    <option value="06">JUNE</option>
+                    <option value="07">JULY</option>
+                    <option value="08">AUGUST</option>
+                    <option value="09">SEPTEMBER</option>
+                    <option value="10">OCTOBER</option>
+                    <option value="11">NOVEMBER</option>
+                    <option value="12">DECEMBER</option>
+                </select>
+            </div>
+            
+            <div id="results-count" class="status-tag">SHOWING: ALL</div>
+        </section>
+
+        <main>
+            <ul id="article-list">
+                {articles}
+            </ul>
+        </main>
+
+        <footer>
+            <p>AUTOMATED MONITORING SYSTEM // OPERATIONAL</p>
+        </footer>
     </div>
 
-    <ul id="article-list">
-        {articles}
-    </ul>
-</div>
+    <script>
+        function applyFilters() {
+            const selectedYear = document.getElementById('yearFilter').value;
+            const selectedMonth = document.getElementById('monthFilter').value;
+            const items = document.querySelectorAll('.post-item');
+            const countDisplay = document.getElementById('results-count');
+            
+            let visibleCount = 0;
 
-<script>
-function filterBy(year, btn) {
-    // UI: Update active button state
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+            items.forEach(item => {
+                const itemYear = item.getAttribute('data-year');
+                const itemMonth = item.getAttribute('data-month');
 
-    // Logic: Show/Hide items
-    const items = document.querySelectorAll('.post-item');
-    items.forEach(item => {
-        if (year === 'all' || item.getAttribute('data-year') === year) {
-            item.style.display = 'block';
-        } else {
-            item.style.display = 'none';
+                const matchesYear = (selectedYear === 'all' || itemYear === selectedYear);
+                const matchesMonth = (selectedMonth === 'all' || itemMonth === selectedMonth);
+
+                if (matchesYear && matchesMonth) {
+                    item.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // Update the status tag
+            if (selectedYear === 'all' && selectedMonth === 'all') {
+                countDisplay.innerText = "SHOWING: ALL";
+            } else {
+                countDisplay.innerText = `MATCHES_FOUND: ${visibleCount}`;
+            }
         }
-    });
-}
-</script>
+    </script>
+</body>
+</html>

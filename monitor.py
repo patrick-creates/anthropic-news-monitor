@@ -142,11 +142,12 @@ def update_index_html(articles_data: dict):
     for url, info in sorted_items:
         snippet = " ".join(info['text'].replace('\n', ' ').split()[:40]) + "..."
         
-        # We add 'data-year' and 'data-month' for the JS filter
+        # Parse date to get numeric Year and Month
         try:
+            # Anthropic date format from your regex: "Apr 16, 2026"
             dt = datetime.strptime(info['date'], "%b %d, %Y")
             year = dt.strftime("%Y")
-            month = dt.strftime("%m")
+            month = dt.strftime("%m") # "04"
         except:
             year = "unknown"
             month = "unknown"

@@ -177,3 +177,40 @@ li:hover {
     color: var(--accent);
     box-shadow: 0 0 10px var(--accent-dim);
 }
+
+.filter-section {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+    padding: 15px;
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.filter-group label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--accent);
+}
+
+select {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 5px 10px;
+    font-family: var(--font-mono);
+    outline: none;
+    cursor: pointer;
+}
+
+select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 5px var(--accent-dim);
+}

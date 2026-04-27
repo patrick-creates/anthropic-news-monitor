@@ -14,6 +14,7 @@ from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+from string import Template
 
 NEWS_URL = "https://www.anthropic.com/news"
 SEEN_FILE = Path(__file__).parent / "seen_data.json"
@@ -159,7 +160,11 @@ def update_index_html(articles_data: dict):
             <p class="post-snippet">{snippet}</p>
         </li>\n"""
     
-    final_html = html_template.format(
+    # Create a Template object
+    t = Template(html_template)
+    
+    # Use safe_substitute (looks for $articles and $last_updated)
+    final_html = t.safe_substitute(
         articles=items, 
         last_updated=datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC")
     )

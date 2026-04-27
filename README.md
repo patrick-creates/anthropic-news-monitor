@@ -2,7 +2,7 @@
 [![Maintained by Telosignal](https://img.shields.io/badge/Maintained%20by-Telosignal-green)](https://www.telosignal.com/)
 [![Python Version](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
 [![GitHub Pages](https://img.shields.io/badge/Live-News_Feed-green)](https://patrick-creates.github.io/anthropic-news-monitor/)
-[![Monitor Status](https://github.com/patrick-creates/anthropic-news-monitor/actions/workflows/monitor.yml/badge.svg)](https://github.com/patrick-creates/anthropic-news-monitor/actions)
+[![Anthropic News Monitor](https://github.com/patrick-creates/anthropic-news-monitor/actions/workflows/monitor.yml/badge.svg?branch=main)](https://github.com/patrick-creates/anthropic-news-monitor/actions/workflows/monitor.yml)
 
 **Stay ahead of the AI curve.** The Anthropic News Monitor is an automated, lightweight Python tool that tracks the official Anthropic newsroom and delivers instant email alerts the moment a new model, research paper, or product update is published. 
 

@@ -91,3 +91,58 @@ a {
 a:hover {
   color: var(--accent);
 }
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+ul {
+  list-style: none;
+}
+
+li {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent); /* The green industrial stripe */
+  padding: 24px;
+  margin-bottom: 20px;
+  transition: all 0.2s ease;
+}
+
+li:hover {
+  transform: translateX(5px);
+  background: var(--accent-dim);
+  border-color: var(--accent);
+}
+
+.post-date {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.post-title {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+
+.post-snippet {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Limits snippet to 3 lines visually */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

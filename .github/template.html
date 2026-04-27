@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Anthropic News Monitor</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; }
+        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #1a1a1a; }
+        .update-time { color: #666; font-size: 0.9em; margin-bottom: 20px; }
+        li { margin-bottom: 12px; }
+        a { color: #d97757; text-decoration: none; font-weight: bold; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Anthropic News Feed</h1>
+        <p class="update-time">Last updated: {last_updated}</p>
+        <ul>
+            {articles}
+        </ul>
+    </div>
+</body>
+</html>

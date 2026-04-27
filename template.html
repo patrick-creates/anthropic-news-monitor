@@ -1,17 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anthropic News Monitor</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div class="container">
-        <h1>Anthropic News Feed</h1>
-        <ul>
-            {articles}
-        </ul>
+<div class="container">
+    <h1>Anthropic News Feed</h1>
+    <p class="update-time">Last updated: {last_updated}</p>
+    
+    <div class="filter-controls">
+        <button class="filter-btn active" onclick="filterBy('all', this)">All</button>
+        <button class="filter-btn" onclick="filterBy('2026', this)">2026</button>
+        <button class="filter-btn" onclick="filterBy('2025', this)">2025</button>
     </div>
-</body>
-</html>
+
+    <ul id="article-list">
+        {articles}
+    </ul>
+</div>
+
+<script>
+function filterBy(year, btn) {
+    // UI: Update active button state
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Logic: Show/Hide items
+    const items = document.querySelectorAll('.post-item');
+    items.forEach(item => {
+        if (year === 'all' || item.getAttribute('data-year') === year) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+</script>

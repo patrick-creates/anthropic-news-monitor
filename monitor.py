@@ -98,44 +98,32 @@ def send_email(subject: str, body: str) -> None:
 
 
 def update_index_html(all_articles: list):
-    """Creates a simple website showing all news found so far."""
-    # 1. Fixed the template to include {last_updated} 
-    # and ensured the list placeholder is named {articles}
-    html_template = """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <style>
-            body {{ font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }}
-            .article {{ margin-bottom: 20px; }}
-        </style>
-    </head>
-    <body>
-        <h1>Anthropic News</h1>
-        <p>Last updated: {last_updated}</p>
-        <ul>
-            {articles}
-        </ul>
-    </body>
-    </html>
-    """
+    """Reads template.html and generates the final index.html."""
     
-    # Generate the <li> list items for the HTML
+    # 1. Read the template file
+    try:
+        with open("template.html", "r") as f:
+            html_template = f.read()
+    except FileNotFoundError:
+        print("Error: template.html not found!")
+        return
+
+    # 2. Generate the <li> list items
     items = ""
-    for url in reversed(all_articles): # Show newest first
+    for url in reversed(all_articles):
         title = url.split('/')[-1].replace('-', ' ').title()
         items += f"<li><a href='{url}' target='_blank'>{title}</a></li>\n"
     
-    # 2. MATCH THE NAMES:
-    # 'articles' matches {articles} in the template
-    # 'last_updated' matches {last_updated} in the template
+    # 3. Format the template with data
     final_html = html_template.format(
         articles=items, 
         last_updated=datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC")
     )
     
+    # 4. Save the finished product
     with open("index.html", "w") as f:
         f.write(final_html)
+        
     print("Successfully updated index.html for GitHub Pages.")
 
 def main() -> int:

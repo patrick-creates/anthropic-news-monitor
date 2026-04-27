@@ -99,18 +99,24 @@ def send_email(subject: str, body: str) -> None:
 
 def update_index_html(all_articles: list):
     """Creates a simple website showing all news found so far."""
+    # 1. Fixed the template to include {last_updated} 
+    # and ensured the list placeholder is named {articles}
     html_template = """
     <!DOCTYPE html>
     <html>
     <head>
         <style>
-            body {{ font-family: Arial, sans-serif; }}  /* Note the double braces */
-            .article {{ margin-bottom: 20px; }}         /* Note the double braces */
+            body {{ font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }}
+            .article {{ margin-bottom: 20px; }}
         </style>
     </head>
     <body>
         <h1>Anthropic News</h1>
-        {articles}  </body>
+        <p>Last updated: {last_updated}</p>
+        <ul>
+            {articles}
+        </ul>
+    </body>
     </html>
     """
     
@@ -120,14 +126,15 @@ def update_index_html(all_articles: list):
         title = url.split('/')[-1].replace('-', ' ').title()
         items += f"<li><a href='{url}' target='_blank'>{title}</a></li>\n"
     
-    # Combine everything
+    # 2. MATCH THE NAMES:
+    # 'articles' matches {articles} in the template
+    # 'last_updated' matches {last_updated} in the template
     final_html = html_template.format(
-        list_items=items, 
+        articles=items, 
         last_updated=datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC")
     )
     
-    # Save the file
-    with open("index.html", "w", encoding="utf-8") as f:
+    with open("index.html", "w") as f:
         f.write(final_html)
     print("Successfully updated index.html for GitHub Pages.")
 

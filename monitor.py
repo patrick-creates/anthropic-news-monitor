@@ -12,6 +12,7 @@ from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
+from datetime import datetime
 
 NEWS_URL = "https://www.anthropic.com/news"
 SEEN_FILE = Path(__file__).parent / "seen.json"
@@ -96,6 +97,48 @@ def send_email(subject: str, body: str) -> None:
         smtp.send_message(msg)
 
 
+def update_index_html(all_articles: list):
+    """Creates a simple website showing all news found so far."""
+    html_template = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Anthropic News Monitor</title>
+        <style>
+            body { font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; line-height: 1.6; }
+            h1 { color: #1a1a1a; border-bottom: 2px solid #eee; }
+            li { margin-bottom: 10px; }
+            .date { color: #666; font-size: 0.8em; }
+        </style>
+    </head>
+    <body>
+        <h1>Latest Anthropic News</h1>
+        <ul>
+            {list_items}
+        </ul>
+        <hr>
+        <p class="date">Last checked: {last_updated}</p>
+    </body>
+    </html>
+    """
+    
+    # Generate the <li> list items for the HTML
+    items = ""
+    for url in reversed(all_articles): # Show newest first
+        title = url.split('/')[-1].replace('-', ' ').title()
+        items += f"<li><a href='{url}' target='_blank'>{title}</a></li>\n"
+    
+    # Combine everything
+    final_html = html_template.format(
+        list_items=items, 
+        last_updated=datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC")
+    )
+    
+    # Save the file
+    with open("index.html", "w", encoding="utf-8") as f:
+        f.write(final_html)
+    print("Successfully updated index.html for GitHub Pages.")
+
 def main() -> int:
     print(f"Fetching {NEWS_URL}")
     listing = fetch(NEWS_URL)
@@ -120,6 +163,10 @@ def main() -> int:
         seen.add(url)
         save_seen(seen)
         print(f"  emailed: {title}")
+
+    seen_articles = load_seen()
+    if seen_articles:
+        update_index_html(list(seen_articles))
 
     return 0
 

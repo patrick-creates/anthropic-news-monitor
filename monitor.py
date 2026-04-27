@@ -103,22 +103,14 @@ def update_index_html(all_articles: list):
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Anthropic News Monitor</title>
         <style>
-            body { font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; line-height: 1.6; }
-            h1 { color: #1a1a1a; border-bottom: 2px solid #eee; }
-            li { margin-bottom: 10px; }
-            .date { color: #666; font-size: 0.8em; }
+            body {{ font-family: Arial, sans-serif; }}  /* Note the double braces */
+            .article {{ margin-bottom: 20px; }}         /* Note the double braces */
         </style>
     </head>
     <body>
-        <h1>Latest Anthropic News</h1>
-        <ul>
-            {list_items}
-        </ul>
-        <hr>
-        <p class="date">Last checked: {last_updated}</p>
-    </body>
+        <h1>Anthropic News</h1>
+        {articles}  </body>
     </html>
     """
     

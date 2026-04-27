@@ -11,7 +11,7 @@
         <header>
             <div class="brand">SYSTEM_MONITOR // ANTHROPIC_NEWS</div>
             <h1>Intelligence Feed</h1>
-            <p class="update-time">LATEST_SYNC: {last_updated}</p>
+            <p class="update-time">LATEST_SYNC: $last_updated</p>
         </header>
 
         <section class="filter-section">
@@ -49,7 +49,7 @@
 
         <main>
             <ul id="article-list">
-                {articles}
+                $articles
             </ul>
         </main>
 
@@ -59,36 +59,35 @@
     </div>
 
     <script>
-        function applyFilters() {{
+        function applyFilters() {
             const selectedYear = document.getElementById('yearFilter').value;
             const selectedMonth = document.getElementById('monthFilter').value;
             const items = document.querySelectorAll('.post-item');
             const countDisplay = document.getElementById('results-count');
-            
+
             let visibleCount = 0;
 
-            items.forEach(item => {{
+            items.forEach(item => {
                 const itemYear = item.getAttribute('data-year');
                 const itemMonth = item.getAttribute('data-month');
 
                 const matchesYear = (selectedYear === 'all' || itemYear === selectedYear);
                 const matchesMonth = (selectedMonth === 'all' || itemMonth === selectedMonth);
 
-                if (matchesYear && matchesMonth) {{
+                if (matchesYear && matchesMonth) {
                     item.style.display = 'block';
                     visibleCount++;
-                }} else {{
+                } else {
                     item.style.display = 'none';
-                }}
-            }});
+                }
+            });
 
-            if (selectedYear === 'all' && selectedMonth === 'all') {{
+            if (selectedYear === 'all' && selectedMonth === 'all') {
                 countDisplay.innerText = "SHOWING: ALL";
-            }} else {{
-                // This is the line that caused the 'visibleCount' KeyError
-                countDisplay.innerText = `MATCHES_FOUND: ${{visibleCount}}`; 
-            }}
-        }}
+            } else {
+                countDisplay.innerText = `MATCHES_FOUND: ${visibleCount}`;
+            }
+        }
     </script>
 </body>
 </html>

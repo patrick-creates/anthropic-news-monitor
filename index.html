@@ -59,7 +59,7 @@
     </div>
 
     <script>
-        function applyFilters() {{  // <--- DOUBLE
+        function applyFilters() {{
             const selectedYear = document.getElementById('yearFilter').value;
             const selectedMonth = document.getElementById('monthFilter').value;
             const items = document.querySelectorAll('.post-item');
@@ -67,27 +67,28 @@
             
             let visibleCount = 0;
 
-            items.forEach(item => {{  // <--- DOUBLE
+            items.forEach(item => {{
                 const itemYear = item.getAttribute('data-year');
                 const itemMonth = item.getAttribute('data-month');
 
                 const matchesYear = (selectedYear === 'all' || itemYear === selectedYear);
                 const matchesMonth = (selectedMonth === 'all' || itemMonth === selectedMonth);
 
-                if (matchesYear && matchesMonth) {{  // <--- DOUBLE
+                if (matchesYear && matchesMonth) {{
                     item.style.display = 'block';
                     visibleCount++;
-                }} else {{  // <--- DOUBLE
+                }} else {{
                     item.style.display = 'none';
                 }}
-            }});  // <--- DOUBLE
+            }});
 
-            if (selectedYear === 'all' && selectedMonth === 'all') {{  // <--- DOUBLE
+            if (selectedYear === 'all' && selectedMonth === 'all') {{
                 countDisplay.innerText = "SHOWING: ALL";
-            }} else {{  // <--- DOUBLE
-                countDisplay.innerText = `MATCHES_FOUND: ${visibleCount}`;
+            }} else {{
+                // This is the line that caused the 'visibleCount' KeyError
+                countDisplay.innerText = `MATCHES_FOUND: ${{visibleCount}}`; 
             }}
-        }}  // <--- DOUBLE
+        }}
     </script>
 </body>
 </html>

@@ -259,8 +259,8 @@ footer {
 
 .trend-row {
   display: grid;
-  grid-template-columns: 160px 1fr 130px;
-  gap: 10px;
+  grid-template-columns: 180px 1fr 160px;
+  gap: 14px;
   align-items: center;
   padding: 4px 0;
   font-size: 11px;
@@ -299,6 +299,7 @@ footer {
   background: var(--surface-2);
   height: 6px;
   position: relative;
+  margin-right: 32px;
 }
 
 .trend-bar {
@@ -308,10 +309,11 @@ footer {
 
 .trend-count {
   position: absolute;
-  right: -28px;
+  right: -24px;
   font-family: var(--font-mono);
   font-size: 10px;
   color: var(--text-secondary);
+  white-space: nowrap;
 }
 
 .trend-meta {

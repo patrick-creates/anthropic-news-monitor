@@ -219,7 +219,9 @@ def render_trends_html(trends: dict) -> str:
                 <span class="cat-name">{cat}</span>
             </div>
             <div class="trend-bar-wrap">
-                <div class="trend-bar" style="width:{width_pct}%;background:{color}"></div>
+                <div class="trend-bar-track">
+                    <div class="trend-bar" style="width:{width_pct}%;background:{color}"></div>
+                </div>
                 <span class="trend-count">{n}</span>
             </div>
             <div class="trend-meta">

@@ -7,8 +7,9 @@ on:
 
 permissions:
   contents: write
-  pages: write      # Required for GH Pages
-  id-token: write   # Required for GH Pages
+  pages: write       # Required for GH Pages
+  id-token: write    # Required for GH Pages
+  models: read       # Required for GitHub Models verifier
 
 jobs:
   monitor:
@@ -16,7 +17,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # This ensures the local git history is available for the commit action
           ref: ${{ github.head_ref }}
 
       - uses: actions/setup-python@v5
@@ -33,20 +33,23 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           TO_EMAIL:  ${{ secrets.TO_EMAIL }}
+          # GITHUB_TOKEN is auto-injected by Actions. We surface it so
+          # categorize.py can use it for the GitHub Models verifier call.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Optional: override the model (default is openai/gpt-4o-mini)
+          # GH_MODEL: openai/gpt-4o-mini
 
       - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: update news data and index"
-          # Only commit these specific files
           file_pattern: 'seen_data.json index.html'
-          # Optional: Use the GitHub Actions bot identity
           commit_author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.' # Deploy the root folder containing index.html
+          path: '.'
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4

@@ -293,13 +293,16 @@ footer {
 }
 
 .trend-bar-wrap {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+}
+
+.trend-bar-track {
   background: var(--surface-2);
   height: 6px;
   position: relative;
-  margin-right: 32px;
 }
 
 .trend-bar {
@@ -308,12 +311,11 @@ footer {
 }
 
 .trend-count {
-  position: absolute;
-  right: -24px;
   font-family: var(--font-mono);
   font-size: 10px;
   color: var(--text-secondary);
-  white-space: nowrap;
+  min-width: 18px;
+  text-align: right;
 }
 
 .trend-meta {

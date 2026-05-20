@@ -259,7 +259,7 @@ footer {
 
 .trend-row {
   display: grid;
-  grid-template-columns: 180px 1fr 160px;
+  grid-template-columns: 200px 1fr 130px;
   gap: 14px;
   align-items: center;
   padding: 4px 0;

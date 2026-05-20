@@ -14,6 +14,8 @@
             <p class="update-time">LATEST_SYNC: $last_updated</p>
         </header>
 
+        $trends
+
         <section class="filter-section">
             <div class="filter-group">
                 <label for="yearFilter">YEAR_STAMP</label>
@@ -43,8 +45,14 @@
                     <option value="12">DECEMBER</option>
                 </select>
             </div>
-            
+
             <div id="results-count" class="status-tag">SHOWING: ALL</div>
+        </section>
+
+        <section class="chip-section">
+            <div class="chip-row">
+                $chips
+            </div>
         </section>
 
         <main>
@@ -59,6 +67,15 @@
     </div>
 
     <script>
+        let activeCat = 'all';
+
+        function filterByCat(btn) {
+            activeCat = btn.getAttribute('data-cat');
+            document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            applyFilters();
+        }
+
         function applyFilters() {
             const selectedYear = document.getElementById('yearFilter').value;
             const selectedMonth = document.getElementById('monthFilter').value;
@@ -70,11 +87,13 @@
             items.forEach(item => {
                 const itemYear = item.getAttribute('data-year');
                 const itemMonth = item.getAttribute('data-month');
+                const itemCat = item.getAttribute('data-cat');
 
                 const matchesYear = (selectedYear === 'all' || itemYear === selectedYear);
                 const matchesMonth = (selectedMonth === 'all' || itemMonth === selectedMonth);
+                const matchesCat = (activeCat === 'all' || itemCat === activeCat);
 
-                if (matchesYear && matchesMonth) {
+                if (matchesYear && matchesMonth && matchesCat) {
                     item.style.display = 'block';
                     visibleCount++;
                 } else {
@@ -82,7 +101,7 @@
                 }
             });
 
-            if (selectedYear === 'all' && selectedMonth === 'all') {
+            if (selectedYear === 'all' && selectedMonth === 'all' && activeCat === 'all') {
                 countDisplay.innerText = "SHOWING: ALL";
             } else {
                 countDisplay.innerText = `MATCHES_FOUND: ${visibleCount}`;

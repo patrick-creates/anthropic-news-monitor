@@ -451,5 +451,31 @@
     "category_source": "rules+verified",
     "category_confidence": 1.0,
     "entities": []
+  },
+  "https://www.anthropic.com/news/kiyoung-choi-representative-director-anthropic-korea": {
+    "title": "Anthropic appoints KiYoung Choi as Representative Director of Korea ahead of Seoul office opening",
+    "text": "Announcements\nAnthropic appoints KiYoung Choi as Representative Director of Korea ahead of Seoul office opening\nMay 26, 2026\nKorea is one of the most active markets in the world for Claude.ai. According to our latest\nEconomic Index\n, Koreans use Claude at more than 3.5 times the rate expected for the population size, with usage skewing heavily toward technical and creative work. To support that momentum, KiYoung Choi is joining Anthropic as Representative Director of Korea, ahead of the opening of our\nSeoul office\n. In the coming weeks, senior leadership from Anthropic will travel to Seoul to officially open the office and meet with customers.\nKiYoung joins from Snowflake, where he served as General Manager for Korea. He brings over three decades of experience leading technology businesses across Korea and Asia-Pacific. Throughout his career, he has helped some of the largest Korean enterprises navigate transformative shifts in technology, ranging from cloud computing to AI adoption. Previously, he held country leadership roles at Google Cloud, Adobe, Autodesk, and Microsoft.\n\u201cKorea is one of the most sophisticated AI markets in the world, leading in hardware innovation, developer activity, and enterprise adoption,\u201d KiYoung said. \u201cKorean organizations combine technical depth with a commitment to responsible deployment, which is exactly where Anthropic operates. That alignment is what brought me to Anthropic\u2014and why we are focused on building in Korea for the long term.\u201d\nAt Anthropic, KiYoung will lead a go-to-market strategy that supports the unique uses of Claude in Korea. Innovative startups and leading enterprises in Korea are already building with Claude.\nLaw&Company\nuses Claude to power its AI legal assistant, helping lawyers reduce time spent on legal research and document preparation while maintaining high accuracy for sensitive legal work.\nSK Telecom\n, the largest telecommunications company in Korea, chose Claude to build a custom AI customer service model, helping improve service quality and support customer service teams at SKT.\n\u201cKorea is one of the markets where we\u2019ve seen the most enthusiasm for Claude, and few people understand its technology landscape the way KiYoung does,\u201d said Chris Ciauri, Managing Director of International, Anthropic. \u201cHe\u2019ll build the team and the local partnerships to support how Korean organizations are putting Claude to work.\u201d\nOur Korea team will focus on building partnerships with enterprises and startups, engaging with government and research institutions, and supporting the vibrant developer community building with Claude.\nFor more information about career opportunities in our Seoul office, visit\nanthropic.com/careers\n.\nRelated content\nAnthropic co-founder Chris Olah's remarks on Pope Leo XIV's encyclical \"Magnifica humanitas\"\nRead more\nWidening the conversation on frontier AI\nRead more\nKPMG integrates Claude across its core business and workforce of more than 276,000 in strategic alliance\nKPMG and Anthropic announce a global alliance, with Claude integrated into KPMG's Digital Gateway platform and available to all 276,000+ employees.\nRead more",
+    "date": "May 26, 2026",
+    "category": "Org & Leadership",
+    "category_source": "rules+verified",
+    "category_confidence": 1.0,
+    "entities": [
+      {
+        "type": "company",
+        "name": "Snowflake"
+      },
+      {
+        "type": "company",
+        "name": "Google"
+      },
+      {
+        "type": "company",
+        "name": "Microsoft"
+      },
+      {
+        "type": "region",
+        "name": "Korea"
+      }
+    ]
   }
 }

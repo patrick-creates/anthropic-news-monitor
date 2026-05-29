@@ -513,5 +513,29 @@
         "name": "Claude Code"
       }
     ]
+  },
+  "https://www.anthropic.com/news/series-h": {
+    "title": "Anthropic raises $65B in Series H funding at $965B post-money valuation",
+    "text": "Announcements\nAnthropic raises $65B in Series H funding at $965B post-money valuation\nMay 28, 2026\nAnthropic has raised $65 billion in Series H funding led by Altimeter Capital, Dragoneer, Greenoaks, and Sequoia Capital, valuing the company at $965 billion post-money.\nGlobal enterprises across industries are deploying Claude in their core operations, and a growing number of people around the world use it for their everyday work. Since our Series G in February, adoption has continued to grow across global enterprise customers, and our run-rate revenue crossed $47 billion earlier this month. This latest funding is expected to advance our safety and interpretability research, expand compute to meet growing demand for Claude, and scale the products and partnerships our customers rely on.\n\u201cClaude is increasingly indispensable to our growing global community of customers, and we work tirelessly to make tools like Claude Code and Cowork more helpful, more powerful, and more adaptable to their needs,\u201d said Krishna Rao, Chief Financial Officer of Anthropic. \u201cThis funding will help us serve the historic demand we are experiencing, stay at the research frontier, and bring Claude to more of the places where work happens.\u201d\nThe round was co-led by Capital Group, Coatue, D1 Capital Partners, GIC, ICONIQ, and XN. Significant investors in this round include AMP PBC, Baillie Gifford, Blackstone, Brookfield, D.E. Shaw Ventures, DST Global, Fidelity Management & Research Company, General Catalyst, Insight Partners, Jane Street, Lightspeed Venture Partners, MGX, NTTVC, NX1 Capital, Situational Awareness LP, T. Rowe Price Associates, Inc., T. Rowe Price Investment Management, Inc., and Temasek. It also includes $15 billion of previously committed investments from hyperscalers, including\n$5 billion from Amazon\n.\nJoining them are strategic infrastructure partners\n\u2014\nMicron, Samsung, and SK hynix\n\u2014\nwhose technologies play a critical role in the world's supply of memory, storage, and logic chips. As demand for Claude continues to grow, these relationships will help us scale our compute reliably at the pace our customers need.\nWe have significantly expanded our compute capacity in recent weeks. We signed agreements with\nAmazon\nfor up to five gigawatts of new capacity, with\nGoogle and Broadcom\nfor five gigawatts of next-generation TPU capacity, and with\nSpaceX\nfor access to GPU capacity in Colossus 1 and Colossus 2. Claude is the first frontier model available on all three of the world's largest cloud platforms: Amazon Web Services, Google Cloud, and Microsoft Azure. AWS remains our primary cloud provider and training partner.\n\u201cClaude\u2019s latest advancements have driven large-scale adoption among the world\u2019s most demanding organizations. This momentum positions Anthropic to lead the next phase of AI innovation and capture the enormous opportunity ahead,\u201d said Brad Gerstner, Founder and CEO of Altimeter Capital.\n\u201cDragoneer has long partnered with companies building the technology that will shape our future. Anthropic is helping pull forward this future, as intelligence becomes an increasingly critical ingredient to the way businesses operate and how their products show up in the world,\u201d said Marc Stad, Managing Partner at Dragoneer. \u201cThe technological progress we are seeing right now is breathtaking. And we believe that we are still in the earliest days of both the development and commercialization of this technology.\u201d\n\u201cAnthropic has built an organization in which the world\u2019s best researchers and engineers operate with unmatched clarity of purpose, because they believe this is the most important work they will ever do,\u201d said Neil Mehta, Founder and Managing Partner at Greenoaks. \u201cRarely has a company\u2019s culture, mission, and commercial momentum reinforced each other so completely. We are honored to deepen our partnership.\u201d\n\u201cStartups and Global 5000 companies alike are deploying Claude to handle complex workflows, and in doing so, Claude is learning how businesses actually operate: the context, the processes, the judgment,\u201d said Alfred Lin, Partner at Sequoia Capital. \u201cAnthropic is building the bridge between where enterprise AI stands today and where it's headed.\u201d\nWe are grateful for the support of our investors and partners as we continue building Claude for people and organizations around the world.\nRelated content\nIntroducing Claude Opus 4.8\nAn upgrade to our Opus class of models, with stronger performance across coding, agentic tasks, and professional work, and the consistency to handle long-running work.\nRead more\nAnthropic opens Milan office to support Italian enterprise, research, and developers\nWe're opening a new office in Milan, our sixth in Europe.\nRead more\nAnthropic appoints KiYoung Choi as Representative Director of Korea ahead of Seoul office opening\nRead more",
+    "date": "May 28, 2026",
+    "category": "Investment & Funding",
+    "category_source": "verifier_override",
+    "category_confidence": 0.75,
+    "entities": [
+      {
+        "type": "company",
+        "name": "Blackstone"
+      },
+      {
+        "type": "company",
+        "name": "Amazon"
+      },
+      {
+        "type": "product",
+        "name": "Claude Code"
+      }
+    ],
+    "category_rule_guess": "Enterprise Deployment",
+    "category_verifier_reason": "The article primarily discusses a funding round rather than enterprise deployment."
   }
 }

@@ -537,5 +537,21 @@
     ],
     "category_rule_guess": "Enterprise Deployment",
     "category_verifier_reason": "The article primarily discusses a funding round rather than enterprise deployment."
+  },
+  "https://www.anthropic.com/news/confidential-draft-s1-sec": {
+    "title": "Anthropic confidentially submits draft S-1 to the SEC",
+    "text": "Announcements\nAnthropic confidentially submits draft S-1 to the SEC\nJun 1, 2026\nToday, Anthropic, PBC confidentially submitted a draft registration statement on Form S-1 to the U.S. Securities and Exchange Commission for a proposed initial public offering of our common stock. This gives us the option to go public after the SEC completes its review. The proposed initial public offering will depend on market conditions and other factors.\nThe number of shares to be offered and the price have not yet been set. This announcement is being published under Rule 135 of the Securities Act of 1933, as amended. It is not an offer to sell securities; nor is it a solicitation of an offer to buy them. Any offers, solicitations of offers to buy, or any sales of securities will be made only in accordance with the registration requirements of the Securities Act.\nRelated content\nAnthropic raises $65B in Series H funding at $965B post-money valuation\nAnthropic has raised $65 billion in Series H funding led by Altimeter Capital, Dragoneer, Greenoaks, and Sequoia Capital.\nRead more\nIntroducing Claude Opus 4.8\nAn upgrade to our Opus class of models, with stronger performance across coding, agentic tasks, and professional work, and the consistency to handle long-running work.\nRead more\nAnthropic opens Milan office to support Italian enterprise, research, and developers\nWe're opening a new office in Milan, our sixth in Europe.\nRead more",
+    "date": "Jun 1, 2026",
+    "category": "Investment & Funding",
+    "category_source": "verifier_override",
+    "category_confidence": 0.75,
+    "entities": [
+      {
+        "type": "product",
+        "name": "Claude Opus 4.8"
+      }
+    ],
+    "category_rule_guess": "Model Release",
+    "category_verifier_reason": "The article discusses a draft S-1 submission for an IPO, which relates to funding and investment activities."
   }
 }

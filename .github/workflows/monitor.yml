@@ -33,11 +33,7 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           TO_EMAIL:  ${{ secrets.TO_EMAIL }}
-          # GITHUB_TOKEN is auto-injected by Actions. We surface it so
-          # categorize.py can use it for the GitHub Models verifier call.
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Optional: override the model (default is openai/gpt-4o-mini)
-          # GH_MODEL: openai/gpt-4o-mini
+          GEMINI_API_KEY : ${{ secrets.GEMINI_API_KEY  }}
 
       - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v5

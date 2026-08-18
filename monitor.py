@@ -18,7 +18,7 @@ from string import Template
 from collections import Counter, defaultdict
 
 from categorize import (categorize_article, CATEGORIES, verifier_failures,
-                        RULES_VERSION)
+                        verifier_disabled, RULES_VERSION)
 
 NEWS_URL = "https://www.anthropic.com/news"
 SEEN_FILE = Path(__file__).parent / "seen_data.json"
@@ -407,7 +407,21 @@ def main() -> int:
             info.pop(key, None)
         info.update(categorize_article(info.get("title", ""), info.get("text", "")))
 
-    if stale or repaired:
+    # Same rule as recategorize_all: if the verifier died, do not persist the
+    # re-labelling. Every touched entry would drop to bare "rules" and lose its
+    # verified mark, and none would be stamped, so the work is discarded anyway.
+    if stale and verifier_failures():
+        print(f"Verifier unavailable ({verifier_disabled() or 'unknown'}); "
+              f"discarding {len(stale)} re-categorization(s) rather than "
+              f"downgrading verified labels.", file=sys.stderr)
+        seen_data = load_seen_data()
+        for info in seen_data.values():
+            if _parse_date(info.get("date", "")) == datetime.min:
+                info["date"] = datetime.now().strftime("%b %d, %Y")
+                info["date_estimated"] = True
+        if repaired:
+            save_seen_data(seen_data)
+    elif stale or repaired:
         remaining = sum(1 for i in seen_data.values()
                         if i.get("rules_version") != RULES_VERSION)
         print(f"Re-categorized {len(stale)} article(s), {remaining} still stale; "

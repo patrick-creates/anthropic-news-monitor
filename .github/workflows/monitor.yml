@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: '0 14 * * *'
   workflow_dispatch:
+    inputs:
+      recategorize:
+        description: 'Re-apply category rules to all articles (rules only, no API calls)'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -24,6 +29,10 @@ jobs:
           cache: pip
 
       - run: pip install -r requirements.txt
+
+      - name: Re-categorize all articles
+        if: inputs.recategorize
+        run: python categorize.py --no-verify
 
       - run: python monitor.py
         env:

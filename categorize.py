@@ -252,16 +252,36 @@ def categorize_by_rules(title: str, body: str) -> tuple[str, float]:
 # GitHub Models verifier
 # ---------------------------------------------------------------------------
 
-GH_MODELS_ENDPOINT = "https://models.github.ai/inference/chat/completions"
-GH_MODEL = os.environ.get("GH_MODEL", "openai/gpt-4o-mini")
+# Provider-agnostic: any OpenAI-compatible /chat/completions endpoint works.
+# Defaults to Gemini via Google's OpenAI compatibility layer. GitHub Models was
+# hardcoded here and its retirement took the verifier down with it; keeping all
+# three values in env vars means the next migration is a secrets change.
+#
+# Verify the current model name and free-tier limits at ai.google.dev before
+# relying on the default below.
+VERIFIER_ENDPOINT = os.environ.get(
+    "VERIFIER_ENDPOINT",
+    "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+)
+VERIFIER_MODEL = os.environ.get("VERIFIER_MODEL", "gemini-2.0-flash")
+# Which env var holds the key. Lets you switch provider without a code change.
+VERIFIER_KEY_ENV = os.environ.get("VERIFIER_KEY_ENV", "GEMINI_API_KEY")
 
 MAX_ATTEMPTS = 3
 RETRY_STATUSES = {408, 429, 500, 502, 503, 504}
+# Statuses that will not improve on retry, and will not improve on the next
+# article either: bad credentials, missing scope, or an endpoint that is gone.
+# 410 is what GitHub Models returns during its retirement brownouts.
+TERMINAL_STATUSES = {401, 403, 404, 410}
 
 # Module-level failure log. Callers check this to decide whether a run is
 # trustworthy; the old code had no way to distinguish "verifier off" from
 # "verifier broken".
 _VERIFIER_FAILURES: list[str] = []
+
+# Set once a TERMINAL_STATUS is seen. Without this, a retired endpoint gets
+# hit once per article: 62 doomed round trips to learn what the first one said.
+_VERIFIER_DISABLED: str | None = None
 
 
 class VerifierUnavailable(Exception):
@@ -274,7 +294,14 @@ def verifier_failures() -> list[str]:
 
 
 def reset_verifier_failures() -> None:
+    global _VERIFIER_DISABLED
     _VERIFIER_FAILURES.clear()
+    _VERIFIER_DISABLED = None
+
+
+def verifier_disabled() -> str | None:
+    """Reason the verifier was shut off for this process, if it was."""
+    return _VERIFIER_DISABLED
 
 
 def _extract_json_object(text: str) -> dict:
@@ -332,30 +359,36 @@ def _verifier_prompt(title: str, body: str, rule_category: str) -> list[dict]:
     ]
 
 
-def verify_with_github_models(title: str, body: str, rule_category: str) -> dict:
-    """Call GitHub Models to double-check.
+def verify_with_llm(title: str, body: str, rule_category: str) -> dict:
+    """Ask the configured LLM to double-check the rule guess.
 
     Raises VerifierUnavailable on any failure. It never returns None — the old
     signature made "no token", "HTTP 401", "bad JSON" and "connection refused"
     indistinguishable from a healthy skip, which is how the verifier stayed
     dead for weeks without anyone noticing.
     """
-    token = os.environ.get("GITHUB_TOKEN")
+    global _VERIFIER_DISABLED
+
+    if _VERIFIER_DISABLED:
+        raise VerifierUnavailable(_VERIFIER_DISABLED)
+
+    token = os.environ.get(VERIFIER_KEY_ENV)
     if not token:
-        raise VerifierUnavailable("GITHUB_TOKEN is not set")
+        _VERIFIER_DISABLED = f"{VERIFIER_KEY_ENV} is not set"
+        raise VerifierUnavailable(_VERIFIER_DISABLED)
 
     last_error = "unknown"
     for attempt in range(MAX_ATTEMPTS):
         try:
             resp = requests.post(
-                GH_MODELS_ENDPOINT,
+                VERIFIER_ENDPOINT,
                 headers={
                     "Authorization": f"Bearer {token}",
                     "Content-Type": "application/json",
                     "Accept": "application/json",
                 },
                 json={
-                    "model": GH_MODEL,
+                    "model": VERIFIER_MODEL,
                     "messages": _verifier_prompt(title, body, rule_category),
                     "temperature": 0,
                     "max_tokens": 200,
@@ -372,8 +405,11 @@ def verify_with_github_models(title: str, body: str, rule_category: str) -> dict
             time.sleep(2 ** attempt)
             continue
 
+        if resp.status_code in TERMINAL_STATUSES:
+            _VERIFIER_DISABLED = f"HTTP {resp.status_code}: {resp.text[:200]}"
+            raise VerifierUnavailable(_VERIFIER_DISABLED)
+
         if resp.status_code != 200:
-            # 401/403/404 are configuration problems — retrying will not help.
             raise VerifierUnavailable(
                 f"HTTP {resp.status_code}: {resp.text[:200]}"
             )
@@ -381,7 +417,8 @@ def verify_with_github_models(title: str, body: str, rule_category: str) -> dict
         try:
             content = resp.json()["choices"][0]["message"]["content"]
             data = _extract_json_object(content)
-        except (KeyError, IndexError, ValueError, json.JSONDecodeError) as exc:
+        except (KeyError, IndexError, TypeError, ValueError,
+                json.JSONDecodeError) as exc:
             raise VerifierUnavailable(f"unparseable response: {exc}") from exc
 
         if data.get("category") not in VERIFIER_CATEGORIES:
@@ -431,7 +468,7 @@ def categorize_article(
         return result
 
     try:
-        verdict = verify_with_github_models(title, body, rule_cat)
+        verdict = verify_with_llm(title, body, rule_cat)
     except VerifierUnavailable as exc:
         _VERIFIER_FAILURES.append(f"{title[:60]!r}: {exc}")
         if strict:

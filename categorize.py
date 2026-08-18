@@ -449,7 +449,7 @@ def categorize_article(
         result["category_confidence"] = 0.75
         result["category_rule_guess"] = rule_cat
         result["category_verifier_reason"] = verdict.get("reason", "")
-        result["rules_version"] = RULES_VERSION
+    result["rules_version"] = RULES_VERSION
     return result
 
 

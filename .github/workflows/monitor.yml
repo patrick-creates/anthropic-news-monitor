@@ -9,7 +9,6 @@ permissions:
   contents: write
   pages: write       # Required for GH Pages
   id-token: write    # Required for GH Pages
-  models: read       # Required for GitHub Models verifier
 
 jobs:
   monitor:

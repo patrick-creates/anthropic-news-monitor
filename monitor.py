@@ -72,14 +72,14 @@ def discover_articles(html: str) -> list[str]:
     return urls
 
 
-def extract_article(html: str) -> tuple[str, str, str]:
-    """Extracts title, FULL text, and published date using Regex fix."""
+def extract_article(html: str) -> tuple[str, str, str, bool]:
+    """Extract title, FULL text, published date, and whether the date is a guess."""
     soup = BeautifulSoup(html, "html.parser")
 
     title_el = soup.find("h1") or soup.find("title")
     title = title_el.get_text(strip=True) if title_el else "Anthropic News"
 
-    date_str = "Recent"
+    date_str = ""
     date_pattern = re.compile(
         r'(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2},\s+20\d{2}',
         re.IGNORECASE
@@ -92,6 +92,13 @@ def extract_article(html: str) -> tuple[str, str, str]:
                 date_str = match.group(0)
                 break
 
+    # No date on the page, or a format _parse_date can't read. Fall back to
+    # today rather than the string "Recent": an unparseable date resolves to
+    # datetime.min, which sorts the newest article to the bottom of the page.
+    date_estimated = _parse_date(date_str) == datetime.min
+    if date_estimated:
+        date_str = datetime.now().strftime("%b %d, %Y")
+
     body_el = soup.find("article") or soup.find("main") or soup.body
     if body_el is None:
         text = soup.get_text("\n", strip=True)
@@ -102,7 +109,7 @@ def extract_article(html: str) -> tuple[str, str, str]:
             tag.decompose()
         text = content.get_text("\n", strip=True)
 
-    return title, text, date_str
+    return title, text, date_str, date_estimated
 
 
 def load_seen_data() -> dict:
@@ -141,11 +148,19 @@ def send_email(subject: str, body: str) -> None:
 # Rendering: trends panel, chips, badges
 # ---------------------------------------------------------------------------
 
+# The scraper's regex accepts both "Aug" and "August"; strptime's %b accepts
+# only the former. Without %B, a site-side format change would silently push
+# every article to datetime.min.
+DATE_FORMATS = ("%b %d, %Y", "%B %d, %Y")
+
+
 def _parse_date(date_str: str) -> datetime:
-    try:
-        return datetime.strptime(date_str, "%b %d, %Y")
-    except Exception:
-        return datetime.min
+    for fmt in DATE_FORMATS:
+        try:
+            return datetime.strptime((date_str or "").strip(), fmt)
+        except ValueError:
+            continue
+    return datetime.min
 
 
 def build_trends(articles_data: dict) -> dict:
@@ -248,7 +263,7 @@ def render_trends_html(trends: dict) -> str:
                 {''.join(bars)}
             </div>
             <div class="trends-col">
-                <h3>Most-mentioned entities</h3>
+                <h3>Most-referenced entities</h3>
                 <div class="entity-chip-row">{''.join(entity_chips) or '<em>none</em>'}</div>
             </div>
         </div>
@@ -299,7 +314,7 @@ def update_index_html(articles_data: dict) -> None:
         items_html_parts.append(f"""
         <li class="post-item" data-year="{year}" data-month="{month}" data-cat="{safe_cat}">
             <div class="post-meta">
-                <span class="post-date">{info.get('date','')}</span>
+                <span class="post-date">{info.get('date','')}{'&#8776;' if info.get('date_estimated') else ''}</span>
                 <span class="cat-badge" style="background:{color}" title="source: {source}">{cat}{verifier_mark}</span>
             </div>
             <a href="{url}" target="_blank" class="post-title">{info['title']}</a>
@@ -334,8 +349,9 @@ def main() -> int:
         print("First run: seeding metadata...")
         for url in current_urls:
             html = fetch(url)
-            title, text, date_str = extract_article(html)
-            entry = {"title": title, "text": text, "date": date_str}
+            title, text, date_str, date_est = extract_article(html)
+            entry = {"title": title, "text": text, "date": date_str,
+                     "date_estimated": date_est}
             entry.update(categorize_article(title, text))
             seen_data[url] = entry
         save_seen_data(seen_data)
@@ -347,9 +363,10 @@ def main() -> int:
         if url not in seen_data:
             print(f"Processing new article: {url}")
             html = fetch(url)
-            title, text, date_str = extract_article(html)
+            title, text, date_str, date_est = extract_article(html)
 
-            entry = {"title": title, "text": text, "date": date_str}
+            entry = {"title": title, "text": text, "date": date_str,
+                     "date_estimated": date_est}
             entry.update(categorize_article(title, text))
 
             email_body = (
@@ -366,17 +383,27 @@ def main() -> int:
 
     # Backfill: any article missing a category gets one (cheap, runs once).
     backfilled = 0
+    repaired = 0
     for url, info in seen_data.items():
         if "category" not in info:
             info.update(categorize_article(info.get("title", ""), info.get("text", "")))
             backfilled += 1
-    if backfilled:
-        print(f"Backfilled categories on {backfilled} article(s).")
+        # Legacy "Recent" (and any other unparseable date) sorts to
+        # datetime.min. Stamp it once so it stops sinking; idempotent, because
+        # the replacement parses cleanly on the next run.
+        if _parse_date(info.get("date", "")) == datetime.min:
+            info["date"] = datetime.now().strftime("%b %d, %Y")
+            info["date_estimated"] = True
+            repaired += 1
+    if backfilled or repaired:
+        print(f"Backfilled categories on {backfilled} article(s); "
+              f"repaired {repaired} unparseable date(s).")
         save_seen_data(seen_data)
 
     print(f"Found {new_count} new article(s).")
     update_index_html(seen_data)
     return 0
+
 
 if __name__ == "__main__":
     code = main()

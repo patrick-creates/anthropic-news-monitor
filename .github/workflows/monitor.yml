@@ -47,6 +47,7 @@ jobs:
           VERIFIER_MIN_INTERVAL: ${{ vars.VERIFIER_MIN_INTERVAL }}
 
       - name: Commit and push changes
+        if: always()
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: update news data and index"

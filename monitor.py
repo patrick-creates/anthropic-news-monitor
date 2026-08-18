@@ -17,7 +17,8 @@ from datetime import datetime, timedelta
 from string import Template
 from collections import Counter, defaultdict
 
-from categorize import categorize_article, CATEGORIES, verifier_failures
+from categorize import (categorize_article, CATEGORIES, verifier_failures,
+                        RULES_VERSION)
 
 NEWS_URL = "https://www.anthropic.com/news"
 SEEN_FILE = Path(__file__).parent / "seen_data.json"
@@ -26,6 +27,10 @@ USER_AGENT = (
     "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
 )
 TIMEOUT = 30
+
+# Cap how many stale articles are re-labelled per run. A RULES_VERSION bump
+# then migrates over several days instead of firing 62 verifier calls at once.
+MAX_RECATEGORIZE_PER_RUN = 15
 
 # Color palette for category badges/chips. Keep keys aligned with categorize.py.
 CATEGORY_COLORS: dict[str, str] = {
@@ -381,22 +386,31 @@ def main() -> int:
             new_count += 1
             save_seen_data(seen_data)
 
-    # Backfill: any article missing a category gets one (cheap, runs once).
-    backfilled = 0
+    # Repair legacy "Recent" (and any other unparseable date), which sorts to
+    # datetime.min and drops the newest article to the bottom of the page.
+    # Idempotent: the replacement parses cleanly on the next run.
     repaired = 0
-    for url, info in seen_data.items():
-        if "category" not in info:
-            info.update(categorize_article(info.get("title", ""), info.get("text", "")))
-            backfilled += 1
-        # Legacy "Recent" (and any other unparseable date) sorts to
-        # datetime.min. Stamp it once so it stops sinking; idempotent, because
-        # the replacement parses cleanly on the next run.
+    for info in seen_data.values():
         if _parse_date(info.get("date", "")) == datetime.min:
             info["date"] = datetime.now().strftime("%b %d, %Y")
             info["date_estimated"] = True
             repaired += 1
-    if backfilled or repaired:
-        print(f"Backfilled categories on {backfilled} article(s); "
+
+    # Re-label anything not produced by the current ruleset. This subsumes the
+    # old `"category" not in info` check: an unlabelled entry has no
+    # rules_version either. A presence check could never propagate new rules.
+    stale = [u for u, i in seen_data.items()
+             if i.get("rules_version") != RULES_VERSION][:MAX_RECATEGORIZE_PER_RUN]
+    for url in stale:
+        info = seen_data[url]
+        for key in ("category_rule_guess", "category_verifier_reason", "verifier_error"):
+            info.pop(key, None)
+        info.update(categorize_article(info.get("title", ""), info.get("text", "")))
+
+    if stale or repaired:
+        remaining = sum(1 for i in seen_data.values()
+                        if i.get("rules_version") != RULES_VERSION)
+        print(f"Re-categorized {len(stale)} article(s), {remaining} still stale; "
               f"repaired {repaired} unparseable date(s).")
         save_seen_data(seen_data)
 

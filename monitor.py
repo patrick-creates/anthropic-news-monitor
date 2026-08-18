@@ -30,7 +30,7 @@ TIMEOUT = 30
 
 # Cap how many stale articles are re-labelled per run. A RULES_VERSION bump
 # then migrates over several days instead of firing 62 verifier calls at once.
-MAX_RECATEGORIZE_PER_RUN = 15
+MAX_RECATEGORIZE_PER_RUN = 3
 
 # Color palette for category badges/chips. Keep keys aligned with categorize.py.
 CATEGORY_COLORS: dict[str, str] = {

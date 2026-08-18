@@ -267,11 +267,20 @@ VERIFIER_MODEL = os.environ.get("VERIFIER_MODEL") or "gemini-3.6-flash"
 # old value of 200 was sized for a non-reasoning model returning a 30-token
 # JSON blob, and truncated newer models to empty content.
 VERIFIER_MAX_TOKENS = int(os.environ.get("VERIFIER_MAX_TOKENS") or "2000")
+# Minimum seconds between requests. Free tiers meter per minute, so firing a
+# batch back-to-back trips the quota no matter how patient the retries are.
+# 4s ~= 15 requests/minute; lower it if your tier allows more.
+VERIFIER_MIN_INTERVAL = float(os.environ.get("VERIFIER_MIN_INTERVAL") or "4")
 # Which env var holds the key. Lets you switch provider without a code change.
 VERIFIER_KEY_ENV = os.environ.get("VERIFIER_KEY_ENV") or "GEMINI_API_KEY"
 
 MAX_ATTEMPTS = 3
 RETRY_STATUSES = {408, 429, 500, 502, 503, 504}
+# Waiting 1s then 2s then 4s never outlasts a per-minute quota. Throttling
+# gets its own schedule, and the provider's own Retry-After wins over both.
+RETRY_BACKOFF = (2, 4, 8)
+THROTTLE_BACKOFF = (20, 40, 60)
+MAX_RETRY_SLEEP = 90
 # Statuses that will not improve on retry, and will not improve on the next
 # article either: bad credentials, missing scope, or an endpoint that is gone.
 # 410 is what GitHub Models returns during its retirement brownouts.
@@ -286,6 +295,43 @@ _VERIFIER_FAILURES: list[str] = []
 # hit once per article: 62 doomed round trips to learn what the first one said.
 _VERIFIER_DISABLED: str | None = None
 
+# Wall-clock time of the last request, for interval pacing.
+_LAST_REQUEST_AT = 0.0
+
+
+def _pace() -> None:
+    """Sleep so consecutive requests stay VERIFIER_MIN_INTERVAL apart."""
+    global _LAST_REQUEST_AT
+    if VERIFIER_MIN_INTERVAL > 0:
+        wait = VERIFIER_MIN_INTERVAL - (time.monotonic() - _LAST_REQUEST_AT)
+        if wait > 0:
+            time.sleep(wait)
+    _LAST_REQUEST_AT = time.monotonic()
+
+
+def _retry_after(resp, attempt: int, throttled: bool) -> float:
+    """How long to wait before retrying, preferring the provider's own hint."""
+    header = resp.headers.get("Retry-After") if resp is not None else None
+    if header:
+        try:
+            return min(float(header), MAX_RETRY_SLEEP)
+        except ValueError:
+            pass
+    if resp is not None:
+        # Google returns RetryInfo as {"retryDelay": "37s"} inside error.details.
+        try:
+            payload = resp.json()
+            if isinstance(payload, list) and payload:
+                payload = payload[0]
+            for detail in payload.get("error", {}).get("details", []):
+                delay = detail.get("retryDelay")
+                if delay:
+                    return min(float(str(delay).rstrip("s")), MAX_RETRY_SLEEP)
+        except Exception:
+            pass
+    schedule = THROTTLE_BACKOFF if throttled else RETRY_BACKOFF
+    return schedule[min(attempt, len(schedule) - 1)]
+
 
 class VerifierUnavailable(Exception):
     """The verifier could not be reached or returned something unusable."""
@@ -297,9 +343,10 @@ def verifier_failures() -> list[str]:
 
 
 def reset_verifier_failures() -> None:
-    global _VERIFIER_DISABLED
+    global _VERIFIER_DISABLED, _LAST_REQUEST_AT
     _VERIFIER_FAILURES.clear()
     _VERIFIER_DISABLED = None
+    _LAST_REQUEST_AT = 0.0
 
 
 def verifier_disabled() -> str | None:
@@ -402,6 +449,7 @@ def verify_with_llm(title: str, body: str, rule_category: str) -> dict:
 
     last_error = "unknown"
     for attempt in range(MAX_ATTEMPTS):
+        _pace()
         try:
             resp = requests.post(
                 VERIFIER_ENDPOINT,
@@ -420,12 +468,14 @@ def verify_with_llm(title: str, body: str, rule_category: str) -> dict:
             )
         except requests.RequestException as exc:
             last_error = f"{type(exc).__name__}: {exc}"
-            time.sleep(2 ** attempt)
+            time.sleep(_retry_after(None, attempt, throttled=False))
             continue
 
         if resp.status_code in RETRY_STATUSES:
-            last_error = f"HTTP {resp.status_code}"
-            time.sleep(2 ** attempt)
+            throttled = resp.status_code == 429
+            delay = _retry_after(resp, attempt, throttled)
+            last_error = f"HTTP {resp.status_code} (waited {delay:.0f}s)"
+            time.sleep(delay)
             continue
 
         if resp.status_code in TERMINAL_STATUSES:

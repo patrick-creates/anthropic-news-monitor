@@ -17,7 +17,7 @@ from datetime import datetime, timedelta
 from string import Template
 from collections import Counter, defaultdict
 
-from categorize import categorize_article, CATEGORIES
+from categorize import categorize_article, CATEGORIES, verifier_failures
 
 NEWS_URL = "https://www.anthropic.com/news"
 SEEN_FILE = Path(__file__).parent / "seen_data.json"
@@ -41,6 +41,8 @@ CATEGORY_COLORS: dict[str, str] = {
     "Org & Leadership": "#ca8a04",
     "Research & Institute": "#2563eb",
     "Brand & Vision": "#db2777",
+    "Cybersecurity & Safeguards": "#b91c1c",
+    "Transparency & Reports": "#0369a1",
     "Uncategorized": "#6b7280",
 }
 
@@ -376,6 +378,14 @@ def main() -> int:
     update_index_html(seen_data)
     return 0
 
-
 if __name__ == "__main__":
-    sys.exit(main())
+    code = main()
+    failures = verifier_failures()
+    if failures:
+        print(f"verifier failed on {len(failures)} article(s):", file=sys.stderr)
+        for line in failures[:5]:
+            print(f"  {line}", file=sys.stderr)
+        if len(failures) > 5:
+            print(f"  ... and {len(failures) - 5} more", file=sys.stderr)
+        code = code or 1
+    sys.exit(code)

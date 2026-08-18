@@ -411,7 +411,8 @@ def main() -> int:
     # re-labelling. Every touched entry would drop to bare "rules" and lose its
     # verified mark, and none would be stamped, so the work is discarded anyway.
     if stale and verifier_failures():
-        print(f"Verifier unavailable ({verifier_disabled() or 'unknown'}); "
+        reason = verifier_disabled() or (verifier_failures() or ["unknown"])[0]
+        print(f"Verifier unavailable ({reason}); "
               f"discarding {len(stale)} re-categorization(s) rather than "
               f"downgrading verified labels.", file=sys.stderr)
         seen_data = load_seen_data()

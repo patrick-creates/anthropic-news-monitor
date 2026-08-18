@@ -259,13 +259,16 @@ def categorize_by_rules(title: str, body: str) -> tuple[str, float]:
 #
 # Verify the current model name and free-tier limits at ai.google.dev before
 # relying on the default below.
-VERIFIER_ENDPOINT = os.environ.get(
-    "VERIFIER_ENDPOINT",
-    "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+VERIFIER_ENDPOINT = os.environ.get("VERIFIER_ENDPOINT") or (
+    "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
 )
-VERIFIER_MODEL = os.environ.get("VERIFIER_MODEL", "gemini-2.0-flash")
+VERIFIER_MODEL = os.environ.get("VERIFIER_MODEL") or "gemini-3.6-flash"
+# Reasoning models spend this budget thinking before they emit anything. The
+# old value of 200 was sized for a non-reasoning model returning a 30-token
+# JSON blob, and truncated newer models to empty content.
+VERIFIER_MAX_TOKENS = int(os.environ.get("VERIFIER_MAX_TOKENS") or "2000")
 # Which env var holds the key. Lets you switch provider without a code change.
-VERIFIER_KEY_ENV = os.environ.get("VERIFIER_KEY_ENV", "GEMINI_API_KEY")
+VERIFIER_KEY_ENV = os.environ.get("VERIFIER_KEY_ENV") or "GEMINI_API_KEY"
 
 MAX_ATTEMPTS = 3
 RETRY_STATUSES = {408, 429, 500, 502, 503, 504}
@@ -302,6 +305,26 @@ def reset_verifier_failures() -> None:
 def verifier_disabled() -> str | None:
     """Reason the verifier was shut off for this process, if it was."""
     return _VERIFIER_DISABLED
+
+
+def _describe_error(resp) -> str:
+    """Readable one-line summary of an error response.
+
+    Providers return the useful part nested inside JSON; truncating the raw
+    body cuts the message off mid-sentence, which is how a retired-model notice
+    ends up unreadable in CI logs.
+    """
+    try:
+        payload = resp.json()
+        if isinstance(payload, list) and payload:
+            payload = payload[0]
+        err = payload.get("error", payload)
+        message = err.get("message") or err.get("code")
+        if message:
+            return f"HTTP {resp.status_code}: {message}"
+    except Exception:
+        pass
+    return f"HTTP {resp.status_code}: {resp.text[:200]}"
 
 
 def _extract_json_object(text: str) -> dict:
@@ -391,7 +414,7 @@ def verify_with_llm(title: str, body: str, rule_category: str) -> dict:
                     "model": VERIFIER_MODEL,
                     "messages": _verifier_prompt(title, body, rule_category),
                     "temperature": 0,
-                    "max_tokens": 200,
+                    "max_tokens": VERIFIER_MAX_TOKENS,
                 },
                 timeout=30,
             )
@@ -406,20 +429,35 @@ def verify_with_llm(title: str, body: str, rule_category: str) -> dict:
             continue
 
         if resp.status_code in TERMINAL_STATUSES:
-            _VERIFIER_DISABLED = f"HTTP {resp.status_code}: {resp.text[:200]}"
+            _VERIFIER_DISABLED = _describe_error(resp)
             raise VerifierUnavailable(_VERIFIER_DISABLED)
 
         if resp.status_code != 200:
+            raise VerifierUnavailable(_describe_error(resp))
+
+        try:
+            choice = resp.json()["choices"][0]
+            content = choice["message"]["content"]
+        except (KeyError, IndexError, TypeError, ValueError) as exc:
+            raise VerifierUnavailable(f"malformed response: {exc}") from exc
+
+        finish = choice.get("finish_reason", "?")
+        if not content:
+            # Empty content with finish_reason "length" means the token budget
+            # was consumed before any text was emitted — raise
+            # VERIFIER_MAX_TOKENS rather than guessing at the prompt.
             raise VerifierUnavailable(
-                f"HTTP {resp.status_code}: {resp.text[:200]}"
+                f"empty content (finish_reason={finish}, "
+                f"max_tokens={VERIFIER_MAX_TOKENS})"
             )
 
         try:
-            content = resp.json()["choices"][0]["message"]["content"]
             data = _extract_json_object(content)
-        except (KeyError, IndexError, TypeError, ValueError,
-                json.JSONDecodeError) as exc:
-            raise VerifierUnavailable(f"unparseable response: {exc}") from exc
+        except (ValueError, json.JSONDecodeError) as exc:
+            raise VerifierUnavailable(
+                f"unparseable response (finish_reason={finish}): {exc}; "
+                f"content={content[:160]!r}"
+            ) from exc
 
         if data.get("category") not in VERIFIER_CATEGORIES:
             raise VerifierUnavailable(

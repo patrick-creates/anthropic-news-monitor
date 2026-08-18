@@ -28,7 +28,7 @@ from pathlib import Path
 import requests
 
 SEEN_FILE = Path(__file__).parent / "seen_data.json"
-
+RULES_VERSION = 2
 
 # ---------------------------------------------------------------------------
 # Category rules
@@ -400,7 +400,7 @@ def verify_with_github_models(title: str, body: str, rule_category: str) -> dict
 # Keys written only when the verifier disagreed. They must be cleared before a
 # re-categorization writes a new result, or an entry can end up claiming a
 # disagreement that did not happen in this run.
-OPTIONAL_KEYS = ("category_rule_guess", "category_verifier_reason", "verifier_error")
+OPTIONAL_KEYS = ("category_rule_guess", "category_verifier_reason", "verifier_error", "rules_version")
 
 
 def categorize_article(
@@ -427,6 +427,7 @@ def categorize_article(
     }
 
     if not use_verifier:
+        result["rules_version"] = RULES_VERSION
         return result
 
     try:
@@ -448,6 +449,7 @@ def categorize_article(
         result["category_confidence"] = 0.75
         result["category_rule_guess"] = rule_cat
         result["category_verifier_reason"] = verdict.get("reason", "")
+        result["rules_version"] = RULES_VERSION
     return result
 
 

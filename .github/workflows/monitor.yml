@@ -34,7 +34,6 @@ jobs:
           TO_EMAIL:  ${{ secrets.TO_EMAIL }}
           GEMINI_API_KEY : ${{ secrets.GEMINI_API_KEY  }}
           VERIFIER_MODEL: ${{ vars.VERIFIER_MODEL }}
-          VERIFIER_ENDPOINT: ${{ vars.VERIFIER_ENDPOINT }}
 
       - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v5

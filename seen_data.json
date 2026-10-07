@@ -1730,8 +1730,8 @@
     "date": "Oct 6, 2026",
     "date_estimated": false,
     "category": "Cybersecurity & Safeguards",
-    "category_source": "rules",
-    "category_confidence": 0.6,
+    "category_source": "rules+verified",
+    "category_confidence": 0.9,
     "entities": [
       {
         "type": "product",
@@ -1770,6 +1770,6 @@
         "name": "Project Glasswing"
       }
     ],
-    "verifier_error": "3 attempts failed, last: HTTP 503 (waited 8s)"
+    "rules_version": 2
   }
 }

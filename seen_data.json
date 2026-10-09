@@ -1778,10 +1778,10 @@
     "date": "Oct 8, 2026",
     "date_estimated": false,
     "category": "Policy & Safety",
-    "category_source": "rules",
+    "category_source": "rules+verified",
     "category_confidence": 1.0,
     "entities": [],
-    "verifier_error": "3 attempts failed, last: HTTP 503 (waited 8s)"
+    "rules_version": 2
   },
   "https://www.anthropic.com/news/genesis-mission-commitment": {
     "title": "Building on our commitment to American scientific discovery",

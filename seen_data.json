@@ -2166,5 +2166,29 @@
       }
     ],
     "verifier_error": "3 attempts failed, last: HTTP 503 (waited 8s)"
+  },
+  "https://www.anthropic.com/news/donating-agent-skills-to-the-agentic-ai-foundation": {
+    "title": "Donating Agent Skills to the Agentic AI Foundation",
+    "text": "Today, we\u2019re donating\nAgent Skills\n, the open standard that gives AI agents specialized knowledge and workflows, to the Agentic AI Foundation (AAIF). More than 70 agent platforms, including ChatGPT, Cursor, GitHub Copilot, and VS Code, have integrated Agent Skills since we published the standard in December 2025.\nAgent interoperability through simplicity\nA skill is a folder containing a SKILL.md file that teaches an agent a specific task or domain, along with any scripts or reference material it needs. We developed skills while working on Claude Code. It handled general knowledge work well, but often lacked the procedural knowledge that real business tasks need. Within weeks of our October 2025 launch, developers published thousands of skills on GitHub and wrote loaders for Codex, Cursor, and OpenCode. We then published Agent Skills as an open standard, under its own GitHub organization and domain, so any agent could use it. So far, 1 million skills have been published and nearly 280 million installed.\nDonating Agent Skills to AAIF\nWe\u2019re committed to keeping Agent Skills open, community-driven, and vendor-neutral. Today, we are donating the standard to the Agentic AI Foundation (AAIF) under the Linux Foundation,\nwhich we co-founded\nwith Block and OpenAI last year, and to which we donated the Model Context Protocol (MCP). The AAIF will provide a neutral home to the standard going forward, ensuring the community has a say in where Agent Skills go next.\nWe are donating the Agent Skills name and logo, the GitHub organization, and the\nagentskills.io\ndomain. You can continue to use the standard or contribute to it without joining the AAIF.\nEngineers from Anthropic, Google, OpenAI, and other companies will maintain the standard as individuals, with David Soria Parra and Mahesh Murag as Lead Maintainers.\nWhat comes next\nWe\u2019ve proposed starting with a roadmap covering versioned releases, a formal proposal process, and security guidance for people who write and install skills. As with MCP, the project will continue to prioritize community input and transparent decision-making. You can join the project\u2019s\nDiscord\nto give feedback on proposed specification changes.\nThank you to the developers who built with Agent Skills from the start, and to the teams who brought skills into their products. Read the specification at\nagentskills.io\nand join the discussion on\nGitHub\n.",
+    "date": "Oct 22, 2026",
+    "date_estimated": false,
+    "category": "Uncategorized",
+    "category_source": "rules",
+    "category_confidence": 0.0,
+    "entities": [
+      {
+        "type": "company",
+        "name": "OpenAI"
+      },
+      {
+        "type": "company",
+        "name": "Google"
+      },
+      {
+        "type": "product",
+        "name": "Claude Code"
+      }
+    ],
+    "verifier_error": "3 attempts failed, last: HTTP 503 (waited 8s)"
   }
 }

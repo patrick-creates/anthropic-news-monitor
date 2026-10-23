@@ -2190,5 +2190,18 @@
       }
     ],
     "verifier_error": "3 attempts failed, last: HTTP 503 (waited 8s)"
+  },
+  "https://www.anthropic.com/news/open-call-guest-investigators-life-sciences": {
+    "title": "Open call for guest investigators in the life sciences",
+    "text": "Related articles\nClaude discovers a novel enzyme system with CRISPR-like repeats\nView more\nToday, we\u2019re inviting members of the life sciences community to apply to work with us on special projects. We\u2019re looking for proposals from principal investigators and their research groups at academic institutions, nonprofits, or government labs who want to use Claude to investigate key questions in causal human biology, structural and computational molecular biology, medicinal chemistry, drug discovery, and clinical science.\nYou can submit a\nproposal for a project here\n.\nOver 8\u201312 weeks, guest investigators will work directly with Anthropic researchers on a problem of interest and produce the analyses, artifacts, and tools that will be most helpful for them in their work. Our team will run our models and harnesses at no cost to them.\nWe\u2019ll work together to publish these outputs and open-source the accompanying data and code. Guest investigators retain the rights to their data at every step during their project. They will also have the rights to any independent follow-on research that might come out of our collaboration.\nWe\u2019re looking for applicants who can clearly explain how they would benefit from direct collaboration with Anthropic\u2019s researchers. Applicants should also make a reasonable case that their outputs (e.g., preliminary discoveries, answers to open questions, open-source datasets, or public resources) can be produced within the 8- to 12-week collaboration period. There may be an option for extension beyond the initial collaboration period for some projects.\nWe understand that the results for most open problems of interest will take much longer to validate, but we\u2019re looking for proposals that can produce some preliminary evidence in a relatively short amount of time.\nWe aren\u2019t asking for guest investigators to give us their data, either in the application or during the collaboration, and we\u2019re requesting that applicants include only publicly available information in their application materials.\nApplications will be open for approximately 14 days, and we\u2019ll strive to notify selected participants by email approximately 14 days after applications close. We look forward to potentially expanding this effort in the future as we learn more about how we can best support the scientific community.\nThis program is one of several initiatives Anthropic is pursuing to invest more heavily in the life sciences and the broader scientific research community. Scientists who would like direct access to our most capable publicly available models for biology can apply to join our\nLife Sciences Verification Program\n. We\u2019ve also continued to support researchers through our\nAI for Science initiative\n, which provides scientists with Claude credits to accelerate their progress toward making scientific discoveries.",
+    "date": "Oct 22, 2026",
+    "date_estimated": false,
+    "category": "Research & Institute",
+    "category_source": "verifier_override",
+    "category_confidence": 0.75,
+    "entities": [],
+    "category_rule_guess": "Uncategorized",
+    "category_verifier_reason": "The article invites academic and scientific researchers to collaborate with Anthropic on life sciences research projects.",
+    "rules_version": 2
   }
 }

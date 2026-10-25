@@ -8,6 +8,10 @@
 
 Built and maintained by [Telosignal](https://www.telosignal.com/).
 
+**Quick start:** 1. Fork this repo · 2. Add the SMTP secrets (see [Automatic Monitoring](#-automatic-monitoring-github-actions)) · 3. Run the workflow once from the **Actions** tab — after that it runs daily.
+
+⭐ If it keeps you up to date, a star helps others find it.
+
 ---
 
 <p align="center">

@@ -105,6 +105,58 @@ class ForkWithoutKeyOrEmail(unittest.TestCase):
         self.assertEqual(saved["https://a.example/old"].get("rules_version"), monitor.RULES_VERSION)
 
 
+class CategoryRules(unittest.TestCase):
+    """Real newsroom titles from seen_data.json; catches regressions when CATEGORY_RULES change."""
+
+    TITLES = {
+        "Policy & Safety": ["2026 Usage Policy update",
+                            "Announcing our updated Responsible Scaling Policy"],
+        "Org & Leadership": ["Physicist Christopher Stubbs joins Anthropic's Long-Term Benefit Trust",
+                             "Anthropic appoints KiYoung Choi as Representative Director of Korea ahead of Seoul office opening",
+                             "Anthropic names Theo Hourmouzis General Manager of Australia & New Zealand and officially opens Sydney office"],
+        "Cybersecurity & Safeguards": ["Developing Enterprise Frontier Safeguards with our customers",
+                                       "Safeguards",
+                                       "Government of Alberta uses Claude to find and fix cybersecurity vulnerabilities across government systems"],
+        "Transparency & Reports": ["Results from the first Anthropic Public Record"],
+        "Product Launch": ["Introducing Claude Design by Anthropic Labs",
+                           "Introducing Claude for Small Business",
+                           "Claude for Creative Work"],
+        "Model Release": ["Introducing Claude Opus 4.7",
+                          "Introducing Claude Sonnet 5",
+                          "Claude Fable 5 and Claude Mythos 5"],
+        "Infrastructure & Compute": ["Anthropic and Amazon expand collaboration for up to 5 gigawatts of new compute",
+                                     "Anthropic expands partnership with Google and Broadcom for multiple gigawatts of next-generation compute",
+                                     "Higher usage limits for Claude and a compute deal with SpaceX"],
+        "Government & Region": ["Anthropic opens Singapore office and signs MOU with the Government of Singapore",
+                                "Anthropic opens Milan office to support Italian enterprise, research, and developers",
+                                "Anthropic opens Seoul office and announces new partnerships across the Korean AI ecosystem"],
+        "Acquisition": ["Anthropic acquires Stainless"],
+        "Investment & Funding": ["Anthropic files S-1 with the SEC for proposed initial public offering",
+                                 "Anthropic raises $65B in Series H funding at $965B post-money valuation",
+                                 "Anthropic confidentially submits draft S-1 to the SEC"],
+        "Enterprise Deployment": ["PwC is deploying Claude to build technology, execute deals, and reinvent enterprise functions for clients",
+                                  "KPMG integrates Claude across its core business and workforce of more than 276,000 in strategic alliance"],
+        "Partner Network & Ecosystem": ["Introducing the Services Track and Partner Hub of the Claude Partner Network",
+                                        "TCS and Anthropic partner to bring Claude to regulated industries",
+                                        "Cognizant and Anthropic expand their partnership to bring Claude to enterprise clients"],
+        "Research & Institute": ["Introducing The Anthropic Institute",
+                                 "A research agenda for the Economic Futures Research Fund"],
+        "Brand & Vision": ["Claude is a space to think"],
+    }
+
+    def test_every_category_is_covered(self):
+        self.assertEqual(sorted(self.TITLES), sorted(categorize.CATEGORIES))
+
+    def test_titles_match_by_title_alone(self):
+        for category, titles in self.TITLES.items():
+            for title in titles:
+                with self.subTest(title=title):
+                    self.assertEqual(categorize.categorize_by_rules(title, ""), (category, 1.0))
+
+    def test_no_match_is_uncategorized(self):
+        self.assertEqual(categorize.categorize_by_rules("Hello", "Nothing to see."), ("Uncategorized", 0.0))
+
+
 class LayoutChange(unittest.TestCase):
     def test_no_article_links_fails_run_without_saving(self):
         with mock.patch.multiple(

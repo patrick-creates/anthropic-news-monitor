@@ -305,7 +305,7 @@ def render_chips_html(trends: dict) -> str:
 
 def update_index_html(articles_data: dict) -> None:
     try:
-        with open("template.html", "r") as f:
+        with open("template.html", "r", encoding="utf-8") as f:
             html_template = f.read()
     except FileNotFoundError:
         return
@@ -351,7 +351,7 @@ def update_index_html(articles_data: dict) -> None:
         chips=chips_html,
     )
 
-    with open("index.html", "w") as f:
+    with open("index.html", "w", encoding="utf-8") as f:
         f.write(final_html)
 
 

@@ -15,6 +15,7 @@ All notable changes to the monitor code and docs are documented here. Daily data
 
 ### Fixed
 - If the newsroom page yields no article links (layout change), the run now fails instead of passing silently with a stale dashboard.
+- `template.html` and `index.html` are read and written as UTF-8, so a local run on Windows no longer depends on the system code page.
 - Without `GEMINI_API_KEY` every new article counted as a verifier failure, so the run went red and articles from an older ruleset never moved on. The verifier is now only called when a key is set, as the README already promised.
 - The dashboard was not published when the verifier failed: `monitor.py` exits 1 by design, which also skipped the Pages deploy, so the site stayed on old data although new articles were committed. Upload and deploy now run unless the workflow is cancelled.
 

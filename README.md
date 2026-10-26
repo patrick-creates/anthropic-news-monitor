@@ -4,7 +4,7 @@
 [![GitHub Pages](https://img.shields.io/badge/Live-News_Feed-green)](https://patrick-creates.github.io/anthropic-news-monitor/)
 [![Anthropic News Monitor](https://github.com/patrick-creates/anthropic-news-monitor/actions/workflows/monitor.yml/badge.svg?branch=main)](https://github.com/patrick-creates/anthropic-news-monitor/actions/workflows/monitor.yml)
 
-**Stay ahead of the AI curve.** The Anthropic News Monitor is an automated, lightweight Python tool that tracks the official Anthropic newsroom, categorizes every post, publishes a browsable dashboard, and (optionally) emails you the moment something new lands.
+A lightweight Python tool that checks the Anthropic newsroom once a day, categorizes every post, and publishes a browsable dashboard and an RSS feed. Email alerts for new posts are optional.
 
 Built and maintained by [Telosignal](https://www.telosignal.com/). Unofficial project, not affiliated with or endorsed by Anthropic.
 

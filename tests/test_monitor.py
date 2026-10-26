@@ -82,5 +82,28 @@ class Recategorize(unittest.TestCase):
                          ["old-rules", "never", "rules-only"])
 
 
+class ForkWithoutKeyOrEmail(unittest.TestCase):
+    """A fresh fork has neither GEMINI_API_KEY nor SMTP: the run must still pass."""
+
+    def test_new_and_outdated_articles_keep_run_green(self):
+        seen = {"https://a.example/old": {"title": "Old", "text": "t", "date": "Oct 01, 2026"}}  # no rules_version
+        saved = {}
+        with mock.patch.dict(os.environ, {}, clear=True), mock.patch.multiple(
+            monitor,
+            fetch=mock.Mock(return_value=""),
+            discover_articles=mock.Mock(return_value=["https://a.example/new"]),
+            extract_article=mock.Mock(return_value=("Introducing Claude 9", "model release", "Oct 26, 2026", False)),
+            load_seen_data=mock.Mock(return_value=seen),
+            save_seen_data=mock.Mock(side_effect=lambda d: saved.update(d)),
+            update_index_html=mock.Mock(),
+            write_feed=mock.Mock(),
+        ):
+            categorize.reset_verifier_failures()
+            self.assertEqual(monitor.main(), 0)
+            self.assertEqual(categorize.verifier_failures(), [])
+        self.assertEqual(saved["https://a.example/new"]["category_source"], "rules")
+        self.assertEqual(saved["https://a.example/old"].get("rules_version"), monitor.RULES_VERSION)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -411,6 +411,8 @@ def main() -> int:
     current_urls = discover_articles(listing)
 
     seen_data = load_seen_data()
+    # Without a key the verifier is off, not broken: label by rules and keep the run green
+    verify = bool(os.environ.get(VERIFIER_KEY_ENV))
 
     if not seen_data:
         print("First run: seeding metadata...")
@@ -419,7 +421,7 @@ def main() -> int:
             title, text, date_str, date_est = extract_article(html)
             entry = {"title": title, "text": text, "date": date_str,
                      "date_estimated": date_est}
-            entry.update(categorize_article(title, text))
+            entry.update(categorize_article(title, text, use_verifier=verify))
             seen_data[url] = entry
         save_seen_data(seen_data)
         update_index_html(seen_data)
@@ -435,7 +437,7 @@ def main() -> int:
 
             entry = {"title": title, "text": text, "date": date_str,
                      "date_estimated": date_est}
-            entry.update(categorize_article(title, text))
+            entry.update(categorize_article(title, text, use_verifier=verify))
 
             email_body = (
                 f"Source: {url}\n"
@@ -459,13 +461,13 @@ def main() -> int:
             info["date_estimated"] = True
             repaired += 1
 
-    verify = bool(os.environ.get(VERIFIER_KEY_ENV))
     stale = needs_recategorize(seen_data, verify)[:MAX_RECATEGORIZE_PER_RUN]
     for url in stale:
         info = seen_data[url]
         for key in ("category_rule_guess", "category_verifier_reason", "verifier_error"):
             info.pop(key, None)
-        info.update(categorize_article(info.get("title", ""), info.get("text", "")))
+        info.update(categorize_article(info.get("title", ""), info.get("text", ""),
+                                       use_verifier=verify))
 
     # Same rule as recategorize_all: if the verifier died, do not persist the
     # re-labelling. Every touched entry would drop to bare "rules" and lose its

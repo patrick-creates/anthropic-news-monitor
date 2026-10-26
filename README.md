@@ -31,6 +31,7 @@ Built and maintained by [Telosignal](https://www.telosignal.com/).
 * **🔎 Entity Extraction:** Surfaces the companies, regions, products, and programs mentioned in each post.
 * **📊 Live Dashboard:** Regenerates `index.html` on every run — category cadence, entity chips, and clickable filters — published via GitHub Pages.
 * **✉️ Direct Email Alerts (optional):** Sends formatted notifications via SMTP. Without SMTP settings the monitor still updates the dashboard.
+* **📡 RSS Feed:** Writes `feed.xml` with the newest 30 posts on every run — subscribe at [patrick-creates.github.io/anthropic-news-monitor/feed.xml](https://patrick-creates.github.io/anthropic-news-monitor/feed.xml). The newsroom has no official feed.
 * **🛡️ Duplicate Prevention:** Keeps a record of seen articles in `seen_data.json` so you're never alerted twice.
 * **☁️ Runs Anywhere:** One-shot script — run it from GitHub Actions, a cron entry, or by hand.
 
@@ -162,7 +163,7 @@ The included workflow runs daily at 14:00 UTC.
    Variables, not secrets — secret values are masked in logs, which would redact the model name from the very error message telling you it's wrong.
 
 3. **Enable permissions and Pages**
-   Under **Settings → Pages → Build and deployment**, set **Source** to **GitHub Actions**. The workflow commits `seen_data.json` and `index.html`. Under **Settings → Actions → General → Workflow permissions**, select **"Read and write permissions"**.
+   Under **Settings → Pages → Build and deployment**, set **Source** to **GitHub Actions**. The workflow commits `seen_data.json`, `index.html` and `feed.xml`. Under **Settings → Actions → General → Workflow permissions**, select **"Read and write permissions"**.
 
 4. **Run it**
    Daily on schedule, or manually from the **Actions** tab. The manual trigger offers a **Re-apply category rules** checkbox, which runs `categorize.py --no-verify` over the whole archive before the normal monitoring step — leave it unchecked for ordinary runs.
@@ -193,6 +194,7 @@ When a new post is detected you'll receive an email like:
 | `styles.css` | Dashboard styling, linked from `template.html`. |
 | `seen_data.json` | Article archive — text, dates, categories, entities. |
 | `index.html` | Generated dashboard. Do not edit by hand. |
+| `feed.xml` | Generated RSS feed. Do not edit by hand. |
 
 ---
 

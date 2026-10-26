@@ -43,5 +43,27 @@ class RetryErrorKeepsReason(unittest.TestCase):
         self.assertIn("HTTP 503", str(ctx.exception))
 
 
+class Feed(unittest.TestCase):
+    def test_valid_rss_newest_first_and_escaped(self):
+        import tempfile
+        import xml.etree.ElementTree as ET
+        from pathlib import Path
+        data = {
+            "https://a.example/old": {"title": "Old", "date": "Jan 02, 2026", "category": "Policy & Safety", "text": "x"},
+            "https://a.example/new": {"title": "New <b> & co", "date": "Oct 20, 2026", "text": "  body \n text "},
+            "https://a.example/nodate": {"title": "Undated", "date": "Recent"},
+        }
+        with tempfile.TemporaryDirectory() as tmp, \
+                mock.patch.object(monitor, "FEED_FILE", Path(tmp) / "feed.xml"):
+            monitor.write_feed(data)
+            root = ET.parse(Path(tmp) / "feed.xml").getroot()  # raises if not well-formed
+        items = root.findall("./channel/item")
+        self.assertEqual([i.findtext("title") for i in items], ["New <b> & co", "Old", "Undated"])
+        self.assertEqual(items[0].findtext("description"), "body text")
+        self.assertEqual(items[0].findtext("category"), "Uncategorized")
+        self.assertTrue(items[0].findtext("pubDate").startswith("Tue, 20 Oct 2026"))
+        self.assertIsNone(items[2].find("pubDate"))
+
+
 if __name__ == "__main__":
     unittest.main()

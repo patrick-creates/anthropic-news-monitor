@@ -51,7 +51,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: update news data and index"
-          file_pattern: 'seen_data.json index.html'
+          file_pattern: 'seen_data.json index.html feed.xml'
           commit_author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
 
       # Deploy even when monitor.py exits 1 (verifier outage): new articles are already committed

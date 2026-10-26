@@ -6,7 +6,8 @@ All notable changes to the monitor code and docs are documented here. Daily data
 
 ### Added
 - `feed.xml`: RSS 2.0 feed with the newest 30 posts, written on every run and linked from the dashboard.
-- `tests/test_monitor.py`: tests for optional email, the provider error text on retries, and the feed (`python -m unittest discover tests`).
+- `tests/test_monitor.py`: tests for optional email, the provider error text on retries, the feed and the re-categorization queue (`python -m unittest discover tests`).
+- With a verifier key, articles labelled by the rules alone are verified later, three per run, after any articles from an older ruleset.
 
 ### Changed
 - Email alerts are optional: without `SMTP_USER`, `SMTP_PASS` and `TO_EMAIL` the monitor skips sending instead of crashing.

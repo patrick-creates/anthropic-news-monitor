@@ -65,5 +65,22 @@ class Feed(unittest.TestCase):
         self.assertIsNone(items[2].find("pubDate"))
 
 
+class Recategorize(unittest.TestCase):
+    data = {
+        "verified": {"rules_version": monitor.RULES_VERSION, "category_source": "rules+verified"},
+        "override": {"rules_version": monitor.RULES_VERSION, "category_source": "verifier_override"},
+        "rules-only": {"rules_version": monitor.RULES_VERSION, "category_source": "rules"},
+        "old-rules": {"rules_version": monitor.RULES_VERSION - 1, "category_source": "rules+verified"},
+        "never": {},
+    }
+
+    def test_without_key_only_outdated_rules(self):
+        self.assertEqual(monitor.needs_recategorize(self.data, verify=False), ["old-rules", "never"])
+
+    def test_with_key_unverified_follow_outdated(self):
+        self.assertEqual(monitor.needs_recategorize(self.data, verify=True),
+                         ["old-rules", "never", "rules-only"])
+
+
 if __name__ == "__main__":
     unittest.main()

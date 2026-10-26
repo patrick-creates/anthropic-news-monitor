@@ -19,7 +19,7 @@ from datetime import datetime, timedelta, timezone
 from string import Template
 from collections import Counter, defaultdict
 
-from categorize import (categorize_article, CATEGORIES, verifier_failures,
+from categorize import (categorize_article, CATEGORIES, verifier_failures, VERIFIER_KEY_ENV,
                         verifier_disabled, RULES_VERSION)
 
 NEWS_URL = "https://www.anthropic.com/news"
@@ -355,6 +355,22 @@ def update_index_html(articles_data: dict) -> None:
         f.write(final_html)
 
 
+def needs_recategorize(articles_data: dict, verify: bool) -> list[str]:
+    """URLs to re-label, oldest ruleset first.
+
+    Anything not produced by the current ruleset comes first; this subsumes the
+    old `"category" not in info` check, since an unlabelled entry has no
+    rules_version either. With a verifier key, articles labelled by the rules
+    alone (verifier off or down at the time) follow, so they get verified later.
+    """
+    outdated = [u for u, i in articles_data.items() if i.get("rules_version") != RULES_VERSION]
+    if not verify:
+        return outdated
+    unverified = [u for u, i in articles_data.items()
+                  if i.get("rules_version") == RULES_VERSION and i.get("category_source") == "rules"]
+    return outdated + unverified
+
+
 def write_feed(articles_data: dict) -> None:
     """RSS 2.0 feed of the newest articles; the Anthropic newsroom has none of its own."""
     newest = sorted(articles_data.items(), key=lambda kv: _parse_date(kv[1].get("date", "")),
@@ -443,11 +459,8 @@ def main() -> int:
             info["date_estimated"] = True
             repaired += 1
 
-    # Re-label anything not produced by the current ruleset. This subsumes the
-    # old `"category" not in info` check: an unlabelled entry has no
-    # rules_version either. A presence check could never propagate new rules.
-    stale = [u for u, i in seen_data.items()
-             if i.get("rules_version") != RULES_VERSION][:MAX_RECATEGORIZE_PER_RUN]
+    verify = bool(os.environ.get(VERIFIER_KEY_ENV))
+    stale = needs_recategorize(seen_data, verify)[:MAX_RECATEGORIZE_PER_RUN]
     for url in stale:
         info = seen_data[url]
         for key in ("category_rule_guess", "category_verifier_reason", "verifier_error"):
@@ -470,9 +483,8 @@ def main() -> int:
         if repaired:
             save_seen_data(seen_data)
     elif stale or repaired:
-        remaining = sum(1 for i in seen_data.values()
-                        if i.get("rules_version") != RULES_VERSION)
-        print(f"Re-categorized {len(stale)} article(s), {remaining} still stale; "
+        remaining = len(needs_recategorize(seen_data, verify))
+        print(f"Re-categorized {len(stale)} article(s), {remaining} still to do; "
               f"repaired {repaired} unparseable date(s).")
         save_seen_data(seen_data)
 

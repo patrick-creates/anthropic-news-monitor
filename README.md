@@ -141,7 +141,7 @@ python categorize.py --allow-degraded # write even if the verifier failed
 
 By default, if the verifier is unreachable the run **aborts without writing**, so a dead API key can't quietly downgrade labels that were previously verified.
 
-Bump `RULES_VERSION` in `categorize.py` after editing the rules. `monitor.py` re-labels anything carrying an older version, a few articles per run, so changes propagate without a manual step.
+Bump `RULES_VERSION` in `categorize.py` after editing the rules. `monitor.py` re-labels anything carrying an older version, a few articles per run, so changes propagate without a manual step. With a verifier key set, articles that were labelled by the rules alone (because the verifier was off or down at the time) are verified the same way afterwards, three per run, oldest ruleset first.
 
 ---
 

@@ -14,6 +14,7 @@ All notable changes to the monitor code and docs are documented here. Daily data
 - On 429/5xx the verifier error now carries the provider's message, not just the status code.
 
 ### Fixed
+- If the newsroom page yields no article links (layout change), the run now fails instead of passing silently with a stale dashboard.
 - Without `GEMINI_API_KEY` every new article counted as a verifier failure, so the run went red and articles from an older ruleset never moved on. The verifier is now only called when a key is set, as the README already promised.
 - The dashboard was not published when the verifier failed: `monitor.py` exits 1 by design, which also skipped the Pages deploy, so the site stayed on old data although new articles were committed. Upload and deploy now run unless the workflow is cancelled.
 

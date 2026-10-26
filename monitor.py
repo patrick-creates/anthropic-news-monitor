@@ -409,6 +409,10 @@ def main() -> int:
     print(f"Fetching {NEWS_URL}")
     listing = fetch(NEWS_URL)
     current_urls = discover_articles(listing)
+    # The newsroom always lists dozens of posts; zero means the page layout changed
+    if not current_urls:
+        print(f"::error::No article links found on {NEWS_URL}; the page layout probably changed.")
+        return 1
 
     seen_data = load_seen_data()
     # Without a key the verifier is off, not broken: label by rules and keep the run green

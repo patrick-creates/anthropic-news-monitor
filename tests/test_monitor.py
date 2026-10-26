@@ -105,5 +105,18 @@ class ForkWithoutKeyOrEmail(unittest.TestCase):
         self.assertEqual(saved["https://a.example/old"].get("rules_version"), monitor.RULES_VERSION)
 
 
+class LayoutChange(unittest.TestCase):
+    def test_no_article_links_fails_run_without_saving(self):
+        with mock.patch.multiple(
+            monitor,
+            fetch=mock.Mock(return_value="<html><body>redesigned</body></html>"),
+            save_seen_data=mock.Mock(),
+            update_index_html=mock.Mock(),
+            write_feed=mock.Mock(),
+        ):
+            self.assertEqual(monitor.main(), 1)
+            monitor.save_seen_data.assert_not_called()
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -2203,5 +2203,16 @@
     "category_rule_guess": "Uncategorized",
     "category_verifier_reason": "The article invites academic and scientific researchers to collaborate with Anthropic on life sciences research projects.",
     "rules_version": 2
+  },
+  "https://www.anthropic.com/news/s1-sec": {
+    "title": "Anthropic files S-1 with the SEC for proposed initial public offering",
+    "text": "Today, Anthropic, PBC filed a registration statement on Form S-1 with the U.S. Securities and Exchange Commission relating to its proposed initial public offering of its Class A common stock.\nAnthropic intends to list its Class A common stock on the Nasdaq Global Select Market under the symbol \u201cANT.\u201d The number of shares of Class A common stock to be offered and the price range for the proposed offering have not yet been determined.\nThe proposed offering will be made only by means of a prospectus. Copies of the preliminary prospectus, when available, may be obtained from: Goldman Sachs & Co. LLC, Attention: Prospectus Department, 200 West Street, New York, NY 10282, by telephone at (866) 471-2526, or by email at prospectus-ny@ny.email.gs.com; or Morgan Stanley & Co. LLC, Attention: Prospectus Department, 180 Varick Street, 2nd Floor, New York, NY 10014.\nA registration statement relating to these securities has been filed with the SEC but has not yet become effective. These securities may not be sold, nor may offers to buy be accepted, prior to the time the registration statement becomes effective. Today\u2019s announcement does not constitute an offer to sell or the solicitation of an offer to buy these securities, nor shall there be any sale of these securities in any state or jurisdiction in which such offer, solicitation, or sale would be unlawful prior to registration or qualification under the securities laws of any such state or jurisdiction.",
+    "date": "Oct 26, 2026",
+    "date_estimated": false,
+    "category": "Investment & Funding",
+    "category_source": "rules",
+    "category_confidence": 1.0,
+    "entities": [],
+    "verifier_error": "3 attempts failed, last: HTTP 503: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later. (waited 8s)"
   }
 }

@@ -130,7 +130,15 @@ def save_seen_data(data: dict) -> None:
     SEEN_FILE.write_text(json.dumps(data, indent=2) + "\n")
 
 
+def email_configured() -> bool:
+    return all(os.environ.get(k) for k in ("SMTP_USER", "SMTP_PASS", "TO_EMAIL"))
+
+
 def send_email(subject: str, body: str) -> None:
+    # Email is optional: without SMTP settings the monitor only updates the dashboard
+    if not email_configured():
+        print(f"Email not configured, skipping: {subject}")
+        return
     host = os.environ.get("SMTP_HOST") or "smtp.gmail.com"
     port = int(os.environ.get("SMTP_PORT") or "587")
     user = os.environ["SMTP_USER"]

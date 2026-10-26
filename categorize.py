@@ -474,7 +474,7 @@ def verify_with_llm(title: str, body: str, rule_category: str) -> dict:
         if resp.status_code in RETRY_STATUSES:
             throttled = resp.status_code == 429
             delay = _retry_after(resp, attempt, throttled)
-            last_error = f"HTTP {resp.status_code} (waited {delay:.0f}s)"
+            last_error = f"{_describe_error(resp)} (waited {delay:.0f}s)"
             time.sleep(delay)
             continue
 

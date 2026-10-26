@@ -54,12 +54,15 @@ jobs:
           file_pattern: 'seen_data.json index.html'
           commit_author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
 
+      # Deploy even when monitor.py exits 1 (verifier outage): new articles are already committed
       - name: Upload Pages Artifact
+        if: ${{ !cancelled() }}
         uses: actions/upload-pages-artifact@v3
         with:
           path: '.'
 
       - name: Deploy to GitHub Pages
+        if: ${{ !cancelled() }}
         uses: actions/deploy-pages@v4
         with:
           timeout: 600000  # Increase timeout to 10 minutes

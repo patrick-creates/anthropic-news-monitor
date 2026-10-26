@@ -4,11 +4,11 @@
 [![GitHub Pages](https://img.shields.io/badge/Live-News_Feed-green)](https://patrick-creates.github.io/anthropic-news-monitor/)
 [![Anthropic News Monitor](https://github.com/patrick-creates/anthropic-news-monitor/actions/workflows/monitor.yml/badge.svg?branch=main)](https://github.com/patrick-creates/anthropic-news-monitor/actions/workflows/monitor.yml)
 
-**Stay ahead of the AI curve.** The Anthropic News Monitor is an automated, lightweight Python tool that tracks the official Anthropic newsroom, categorizes every post, publishes a browsable dashboard, and emails you the moment something new lands.
+**Stay ahead of the AI curve.** The Anthropic News Monitor is an automated, lightweight Python tool that tracks the official Anthropic newsroom, categorizes every post, publishes a browsable dashboard, and (optionally) emails you the moment something new lands.
 
 Built and maintained by [Telosignal](https://www.telosignal.com/).
 
-**Quick start:** 1. Fork this repo · 2. Add the SMTP secrets (see [Automatic Monitoring](#-automatic-monitoring-github-actions)) · 3. Run the workflow once from the **Actions** tab — after that it runs daily.
+**Quick start:** 1. Fork this repo · 2. Set **Settings → Pages → Source** to **GitHub Actions** · 3. Run the workflow once from the **Actions** tab — after that it runs daily. Email alerts and the category verifier are optional extras, see [Automatic Monitoring](#-automatic-monitoring-github-actions).
 
 ⭐ If it keeps you up to date, a star helps others find it.
 
@@ -30,7 +30,7 @@ Built and maintained by [Telosignal](https://www.telosignal.com/).
 * **🏷️ Automatic Categorization:** Rule-based labelling with an optional LLM verifier that double-checks each guess and overrides it when the rules get it wrong.
 * **🔎 Entity Extraction:** Surfaces the companies, regions, products, and programs mentioned in each post.
 * **📊 Live Dashboard:** Regenerates `index.html` on every run — category cadence, entity chips, and clickable filters — published via GitHub Pages.
-* **✉️ Direct Email Alerts:** Sends formatted notifications via SMTP.
+* **✉️ Direct Email Alerts (optional):** Sends formatted notifications via SMTP. Without SMTP settings the monitor still updates the dashboard.
 * **🛡️ Duplicate Prevention:** Keeps a record of seen articles in `seen_data.json` so you're never alerted twice.
 * **☁️ Runs Anywhere:** One-shot script — run it from GitHub Actions, a cron entry, or by hand.
 
@@ -58,7 +58,7 @@ Anything the rules can't place is labelled `Uncategorized`.
 
 ### Prerequisites
 * Python 3.9 or higher (CI runs 3.12)
-* An SMTP-enabled email account (e.g. Gmail with an **App Password**)
+* Optional: an SMTP-enabled email account (e.g. Gmail with an **App Password**) for email alerts
 * Optional: an API key for the category verifier (see [Verifier](#-verifier))
 
 ### Installation
@@ -148,10 +148,10 @@ Bump `RULES_VERSION` in `categorize.py` after editing the rules. `monitor.py` re
 
 The included workflow runs daily at 14:00 UTC.
 
-1. **Add repository secrets**
+1. **Add repository secrets** *(optional)*
    **Settings → Secrets and variables → Actions → Secrets**
-   * `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `TO_EMAIL`
-   * `GEMINI_API_KEY` — optional, enables the verifier
+   * `SMTP_USER`, `SMTP_PASS`, `TO_EMAIL` — enable email alerts; `SMTP_HOST` and `SMTP_PORT` default to Gmail (`smtp.gmail.com:587`). If any of the three is missing, emails are skipped.
+   * `GEMINI_API_KEY` — enables the verifier
 
 2. **Add repository variables** *(optional)*
    **Settings → Secrets and variables → Actions → Variables**
@@ -161,13 +161,13 @@ The included workflow runs daily at 14:00 UTC.
 
    Variables, not secrets — secret values are masked in logs, which would redact the model name from the very error message telling you it's wrong.
 
-3. **Enable permissions**
-   The workflow commits `seen_data.json` and `index.html`. Under **Settings → Actions → General → Workflow permissions**, select **"Read and write permissions"**.
+3. **Enable permissions and Pages**
+   Under **Settings → Pages → Build and deployment**, set **Source** to **GitHub Actions**. The workflow commits `seen_data.json` and `index.html`. Under **Settings → Actions → General → Workflow permissions**, select **"Read and write permissions"**.
 
 4. **Run it**
    Daily on schedule, or manually from the **Actions** tab. The manual trigger offers a **Re-apply category rules** checkbox, which runs `categorize.py --no-verify` over the whole archive before the normal monitoring step — leave it unchecked for ordinary runs.
 
-The job exits non-zero when the verifier fails, so a broken key or retired model shows up as a red build rather than silently degrading.
+The job exits non-zero when the verifier fails, so a broken key or retired model shows up as a red build rather than silently degrading. New articles are still saved and the dashboard is still published in that case; the log shows the provider's error message (for example a `503` with the reason), which tells you whether to wait or to change `VERIFIER_MODEL`.
 
 ---
 

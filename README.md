@@ -6,7 +6,7 @@
 
 **Stay ahead of the AI curve.** The Anthropic News Monitor is an automated, lightweight Python tool that tracks the official Anthropic newsroom, categorizes every post, publishes a browsable dashboard, and (optionally) emails you the moment something new lands.
 
-Built and maintained by [Telosignal](https://www.telosignal.com/).
+Built and maintained by [Telosignal](https://www.telosignal.com/). Unofficial project, not affiliated with or endorsed by Anthropic.
 
 **Quick start:** 1. Fork this repo · 2. Set **Settings → Pages → Source** to **GitHub Actions**, and **Settings → Actions → General → Workflow permissions** to **Read and write** · 3. Open the **Actions** tab, enable workflows (GitHub disables them on forks) and run **Anthropic News Monitor** once — after that it runs daily. No keys needed: email alerts and the category verifier are optional extras, see [Automatic Monitoring](#-automatic-monitoring-github-actions). The fork brings the existing archive, so you only get alerts for posts published after you start.
 

@@ -1,6 +1,6 @@
 # 📬 Anthropic News Monitor
 [![Maintained by Telosignal](https://img.shields.io/badge/Maintained%20by-Telosignal-green)](https://www.telosignal.com/)
-[![Python Version](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
+[![Python Version](https://img.shields.io/badge/python-3.12%2B-blue)](https://www.python.org/)
 [![GitHub Pages](https://img.shields.io/badge/Live-News_Feed-green)](https://patrick-creates.github.io/anthropic-news-monitor/)
 [![Anthropic News Monitor](https://github.com/patrick-creates/anthropic-news-monitor/actions/workflows/monitor.yml/badge.svg?branch=main)](https://github.com/patrick-creates/anthropic-news-monitor/actions/workflows/monitor.yml)
 
@@ -58,7 +58,7 @@ Anything the rules can't place is labelled `Uncategorized`.
 ## 🚀 Quick Start
 
 ### Prerequisites
-* Python 3.9 or higher (CI runs 3.12)
+* Python 3.12 or higher (CI runs 3.12)
 * Optional: an SMTP-enabled email account (e.g. Gmail with an **App Password**) for email alerts
 * Optional: an API key for the category verifier (see [Verifier](#-verifier))
 

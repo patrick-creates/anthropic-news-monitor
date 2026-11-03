@@ -2,6 +2,16 @@
 
 All notable changes to the monitor code and docs are documented here. Daily data commits by `github-actions[bot]` are not listed. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+- Dependabot version updates for GitHub Actions and pip, monthly and grouped.
+- CI checks that Python 3.12 is not end-of-life and audits the installed packages with `pip-audit`.
+
+### Changed
+- GitHub Actions moved to their Node 24 releases (`checkout` v7, `setup-python` v7, `git-auto-commit-action` v7, `upload-pages-artifact` v5, `deploy-pages` v5).
+- Minimum Python is 3.12 (was 3.9, end-of-life), matching CI.
+
 ## [1.1.0] – 2026-10-26
 
 ### Added

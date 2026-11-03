@@ -19,16 +19,33 @@ jobs:
   monitor:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: main
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
           cache: pip
 
-      - run: pip install -r requirements.txt
+      # Fails once the CI Python is end-of-life; an unreachable endoflife.date only warns so CI does not depend on it.
+      - name: Check Python end-of-life
+        run: |
+          python - <<'EOF'
+          import datetime, json, sys, urllib.request
+          v = f"{sys.version_info.major}.{sys.version_info.minor}"
+          try:
+              with urllib.request.urlopen(f"https://endoflife.date/api/python/{v}.json", timeout=10) as r:
+                  eol = json.load(r)["eol"]
+          except Exception as exc:
+              print(f"::warning::Could not check end-of-life of Python {v}: {exc}")
+              sys.exit(0)
+          if eol is not False and (eol is True or datetime.date.fromisoformat(eol) <= datetime.date.today()):
+              sys.exit(f"::error::Python {v} reached end-of-life ({eol}); raise python-version in monitor.yml")
+          print(f"Python {v} supported until {eol}")
+          EOF
+
+      - run: python -m pip install --upgrade pip && python -m pip install -r requirements.txt
 
       - name: Re-categorize all articles
         if: inputs.recategorize
@@ -48,7 +65,7 @@ jobs:
 
       - name: Commit and push changes
         if: always()
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "chore: update news data and index"
           file_pattern: 'seen_data.json index.html feed.xml'
@@ -57,12 +74,16 @@ jobs:
       # Deploy even when monitor.py exits 1 (verifier outage): new articles are already committed
       - name: Upload Pages Artifact
         if: ${{ !cancelled() }}
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: '.'
 
       - name: Deploy to GitHub Pages
         if: ${{ !cancelled() }}
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
         with:
           timeout: 600000  # Increase timeout to 10 minutes
+
+      # Last so a finding never blocks the data commit or the deploy; requirements.txt uses version ranges, so audit what was actually installed rather than the file.
+      - name: Audit dependencies for known vulnerabilities
+        run: python -m pip install pip-audit && python -m pip_audit
